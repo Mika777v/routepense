@@ -5,36 +5,25 @@
 
 - 最終更新: 2026-11-02
 
-## ステップ（CLAUDE.md「進め方」）
+## ステップ（CLAUDE.md「進め方」）と Epic
 
-| # | ステップ | 状態 | PR |
-|---|---|---|---|
-| 0 | 要件定義・git の運用ルール | 完了 | [#1](https://github.com/Mika777v/routepense/pull/1)・[#2](https://github.com/Mika777v/routepense/pull/2)・[#4](https://github.com/Mika777v/routepense/pull/4) |
-| 1 | 雛形（フロントとバックが動く） | 完了 | [#3](https://github.com/Mika777v/routepense/pull/3) |
-| 2 | 共有の型 | 完了 | [#5](https://github.com/Mika777v/routepense/pull/5) |
-| 3 | ルートの登録 API と画面 | **途中**（DB と API まで。画面がまだ） | [#7](https://github.com/Mika777v/routepense/pull/7)・[#9](https://github.com/Mika777v/routepense/pull/9) |
-| 4 | 一括登録のロジックとテスト | 未着手 | |
-| 5 | 一括登録の画面 | 未着手 | |
-| 6 | 月ごとの一覧と合計 | 未着手 | |
+作業の単位は Issue で管理する（`CLAUDE.md`「Issue の使い方」）。細かい進み具合は、各 Epic の sub-issue（Task）を見る。
 
-## 開いている PR（この更新の時点）
-
-| PR | 内容 | 待っていること |
-|---|---|---|
-| [#6](https://github.com/Mika777v/routepense/pull/6) | `frontend-design` スキルを `.claude/skills/` に追加 | オーナーの確認とマージ |
-| [#8](https://github.com/Mika777v/routepense/pull/8) | ADR-0001 の状態を「決定」にする | オーナーの確認とマージ |
-| [#9](https://github.com/Mika777v/routepense/pull/9) | ルートの API | CI → 自動マージ |
-| この PR | セッションの使い方のルールと、このファイル | オーナーの確認とマージ |
+| # | ステップ | 状態 | Epic | 主な PR |
+|---|---|---|---|---|
+| 0 | 要件定義・git の運用ルール | 完了 | — | [#1](https://github.com/Mika777v/routepense/pull/1)・[#2](https://github.com/Mika777v/routepense/pull/2)・[#4](https://github.com/Mika777v/routepense/pull/4)・[#10](https://github.com/Mika777v/routepense/pull/10) |
+| 1 | 雛形（フロントとバックが動く） | 完了 | — | [#3](https://github.com/Mika777v/routepense/pull/3) |
+| 2 | 共有の型 | 完了 | — | [#5](https://github.com/Mika777v/routepense/pull/5) |
+| 3 | ルートの登録 API と画面 | **途中**（DB と API まで。画面がまだ） | [#11](https://github.com/Mika777v/routepense/issues/11) | [#6](https://github.com/Mika777v/routepense/pull/6)・[#7](https://github.com/Mika777v/routepense/pull/7)・[#8](https://github.com/Mika777v/routepense/pull/8)・[#9](https://github.com/Mika777v/routepense/pull/9) |
+| 4 | 日次記録と一括設定のロジック | 未着手 | [#12](https://github.com/Mika777v/routepense/issues/12) | |
+| 5 | カレンダー入力と一括設定の画面 | 未着手 | [#13](https://github.com/Mika777v/routepense/issues/13) | |
+| 6 | 月ごとの一覧と合計 | 未着手 | [#14](https://github.com/Mika777v/routepense/issues/14) | |
+| — | MVP の後（経路検索 U1・祝日 U9） | 未着手 | [#15](https://github.com/Mika777v/routepense/issues/15) | |
 
 ## 次にやること
 
-1. **ステップ3の残り: ルートの管理画面**（`frontend/`）
-   - 一覧・登録・編集・削除。API は `GET/POST/PUT/DELETE /api/routes`（`backend/src/routes/route-router.ts`）
-   - 入力の誤りは、API が返す `fieldErrors`（`shared/src/api.ts`）を欄ごとに表示する
-   - 交通手段の選択肢は `TRANSPORTS`（`shared/src/route.ts`）から作る
-   - デザインは `.claude/skills/frontend-design`（PR #6 のマージ後）に沿う
-   - 教科書: React のフォームの章を書く
-2. ステップ3を終えたら区切りの報告をして、新しいセッションでステップ4へ
+1. **[#16](https://github.com/Mika777v/routepense/issues/16) E03-T3 ルートの管理画面**（ステップ3の残り）
+2. #16 が終わったら Epic #11 を閉じて区切りの報告をし、新しいセッションで Epic #12（ステップ4）へ。最初は #17（日次記録のテーブル。DB のスキーマなので確認待ち）と、それに依存しない #18・#19（純粋関数）を並べて進められる
 
 ## 会話で決めたこと（ほかの文書に無いもの）
 

@@ -76,6 +76,17 @@ scope（省略可）: `frontend` `backend` `shared` `db` `docs` `textbook` `ci` 
 - 同時に開いている PR どうしで、同じファイルの同じ箇所を触らない
 - CI が落ちたら、原因を直して push し直す（テストを消したり飛ばしたりして通さない）
 
+## 5.1 Issue
+
+| 種類 | テンプレート | 単位 | 例 |
+|---|---|---|---|
+| Epic | `.github/ISSUE_TEMPLATE/epic.yml` | 「進め方」の1ステップ | `[Epic] E04 日次記録と一括設定のロジック` |
+| Task | `.github/ISSUE_TEMPLATE/task.yml` | 1つの PR（ときに2つ）で終わる作業。Epic の sub-issue にする | `[Task] E04-T2 一括設定の対象日の計算` |
+| Bug | `.github/ISSUE_TEMPLATE/bug.yml` | 不具合 | |
+
+- PR の本文に `Closes #<Task>` を書くと、マージで Task が自動で閉じる
+- ラベル: `type:epic`・`type:task`・`type:bug`、`area:frontend`・`area:backend`・`area:shared`・`area:db`、確認が必要な作業は `needs-confirm`
+
 ## 6. CI の構成
 
 | ワークフロー | ジョブ | 内容 |

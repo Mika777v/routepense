@@ -1,6 +1,9 @@
 ## 概要
 <!-- 何を・なぜ。PR タイトルは Conventional Commits 形式（例: feat(backend): ルート登録APIを追加） -->
 
+Closes #
+<!-- 対応する Task の番号。Task が無い小さな作業は「Part of #Epic の番号」 -->
+
 ## 変更内容
 -
 
