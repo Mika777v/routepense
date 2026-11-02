@@ -36,6 +36,11 @@ typescript-eslint@8.71.2 ─ @typescript-eslint/typescript-estree ── minimat
 
 **おすすめは A。** 影響が lint だけで、直った版が出てから日が浅く、上流が追いつくのを待っても困らないため。B を選ぶ場合は、依存のメジャー更新に当たるので、PR でオーナーの確認を待つ（`CLAUDE.md`「git の運用」4）。
 
+## 決めたこと（2026-11-02）
+
+**A（待つ）に決めた**（オーナーが選んだ）。決めた日の最新版も `eslint@10.14.0` は `minimatch@^10.2.6`、`@typescript-eslint/typescript-estree@8.72.1` は `^10.2.2`、`@eslint/config-array@0.23.5` は `^10.2.4` のまま。`overrides` は書かず、`npm install` の `11 moderate severity vulnerabilities` は出たままにする。
+
 ## 次に見直すとき
 
 - `npm view eslint dependencies.minimatch` と `npm view @typescript-eslint/typescript-estree dependencies.minimatch` が `^11` になったら、`eslint`・`typescript-eslint` を更新して `npm audit` を見直す
+- 見直すきっかけ: 依存を更新する作業のついで、または新しいセッションで `npm install` したとき。上流が上がっていて警告が消えたら、このファイルと `docs/PROGRESS.md` の「既知の警告」の項を直す

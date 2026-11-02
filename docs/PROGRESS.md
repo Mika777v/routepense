@@ -20,14 +20,11 @@
 | 6 | 月ごとの一覧と合計 | 完了 | [#14](https://github.com/Mika777v/routepense/issues/14) | [#43](https://github.com/Mika777v/routepense/pull/43)・[#44](https://github.com/Mika777v/routepense/pull/44) |
 | — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
 | — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
-| — | 依存ライブラリの手入れ（E08） | 進行中（確認待ち） | [#67](https://github.com/Mika777v/routepense/issues/67) | — |
+| — | 依存ライブラリの手入れ（E08） | 完了（A: 上流を待つ） | [#67](https://github.com/Mika777v/routepense/issues/67)（閉じた） | [#69](https://github.com/Mika777v/routepense/pull/69) |
 
 ## 次にやること
 
-1. **Epic #67（E08 依存ライブラリの手入れ）を進めている。** Task #68 で `npm audit` の原因を調べ、`docs/npm-audit.md` にまとめた。元は `minimatch@10.2.6` の1件（lint のときだけ使う）
-   - **オーナーに確認中**: 直し方を A（上流の更新を待つ・おすすめ）/ B（`overrides` で `minimatch` を 11 に上げる。依存のメジャー更新）/ C（受け入れる）から選ぶ
-   - #68 は調査の文書のマージで閉じた。A か C なら Epic #67 を閉じる（A は `docs/npm-audit.md`「次に見直すとき」を時々見る）。B なら Task を作って PR にし、マージ前にオーナーに確認する
-   ほかの候補:
+1. **次の作業は未定。** 開いている Epic は無い。次の候補から選ぶ
    - 駅すぱあとのキーが届いたら、本物の API で経路検索を試す（`backend/.env` に `EKISPERT_API_KEY`。README「経路検索（駅すぱあと API）のキー」）。localhost から使うには `info@val.co.jp` への連絡が要る（無いと 403）
      - キーの状況: **まだ届いていない**（2026-11-02 にオーナーが回答）。届いたら、登録したドメインと localhost の連絡を確かめる
      - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。キーが届いたら、保存した URL が後日も開けるかを確かめる
@@ -38,7 +35,7 @@
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
 3. 教科書は第16章（Promise と async / await）まで。次の章は、次の機能の作業で使う概念から選ぶ
-4. `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。`npm audit fix --force` は古い版に戻すだけなので使わない
+4. **既知の警告**: `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。元は lint だけで使う `minimatch@10.2.6` の1件で、上流（`eslint`・`typescript-eslint`）が `minimatch@^11` に上げるのを待つと決めた。`npm audit fix --force` は古い版に戻すだけなので使わない。`overrides` も書かない
 
 ## 会話で決めたこと（ほかの文書に無いもの）
 
@@ -46,6 +43,7 @@
 - **見送ったツール**（2026-11-02）: 中身を読んだうえで、次の2つは入れないことにした
   - Ponytail（`DietrichGebert/ponytail`）: 「コードと説明を最小にする」方針が、学習のために理由を添える方針・将来に備えた作り（ユーザーIDなど）とぶつかる
   - Graphify（`Graphify-Labs/graphify`）: ファイルが少ないうちは効果が薄い。ファイルが数百を超えたら考え直す
+- **npm audit の直し方**（2026-11-02、Epic #67）: A（上流の更新を待つ）にした。`overrides` で `minimatch` を 11 に押し込む案 B は、上流が確かめていないメジャー版になるため見送った。見直す手順は `docs/npm-audit.md`「次に見直すとき」
 - **画面のデザイン**（ステップ3）: ルートの一覧は切符（乗車券）に見立てる。色は紺の文字・冷たい灰色の地・淡い緑の切符・深い緑のボタン、文字は BIZ UDPGothic。色と文字は `frontend/src/styles.css` の `:root` にまとめた。次の画面もこの決まりに合わせる
 - **画面での入力の判定**: 画面では判定せず、API が返す `fieldErrors` を欄ごとに出す（判定のルールを backend の1か所に置く）。画面のテストは、React を使わない純粋関数と、fetch を差し替えた API の呼び出しで書く（jsdom などの依存は足していない）
 - **一括設定の API は「下見」と「登録」の2つ**（2026-11-02）: 要件 F3・U4 の「当てはめ → 日ごとに直す → 登録」に合わせる。`BulkInput` の条件（同じ月・曜日1つ以上）は下見の API の受け口で確かめ、登録の API は直した後の日ごとの一覧を受ける。要件定義は変えていない
