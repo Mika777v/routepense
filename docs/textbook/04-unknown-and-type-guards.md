@@ -101,6 +101,34 @@ export function parseRouteInput(body: unknown): Result<RouteInput> {
 - 返す値は、確かめた項目だけで**新しく組み立てる**。送られてきた本文に `userId` などの余分な項目があっても、取り込まれません（`parse-route-input.test.ts` の「余分な項目は取り込まない」）
 - 誤りは最初の1つで止めず、全部まとめて返します。画面で、すべての欄に一度にエラーを出せるようにするためです
 
+### ユニオン型の入力を確かめる（parseWorkStyleInput）
+
+`backend/src/daily-records/parse-daily-record-input.ts` は、勤務区分（第2章の判別可能なユニオン型）の入力を確かめます。`kind` の値で形を見分け、**形ごとに要る項目だけ**を確かめます。
+
+```ts
+export function parseWorkStyleInput(value: unknown, field = "workStyle"): Result<WorkStyleInput> {
+  if (!isRecord(value)) {
+    return { ok: false, errors: [{ field, message: "勤務区分を選んでください" }] };
+  }
+  switch (value.kind) {
+    case "remote":
+      return { ok: true, value: { kind: "remote" } };
+    case "commute": {
+      const routeId = value.routeId; // ここではまだ unknown
+      if (typeof routeId !== "string" || routeId === "") {
+        return { ok: false, errors: [{ field: `${field}.routeId`, message: "ルートを選んでください" }] };
+      }
+      return { ok: true, value: { kind: "commute", routeId } }; // ここでは string
+    }
+    // holiday と、どれでもないとき（default）は省略
+  }
+}
+```
+
+- `isRecord` を通った後の `value` は `Record<string, unknown>` なので、`value.kind` も `value.routeId` も `unknown` です。`switch` で `kind` を比べても、`routeId` は確かめるまで `unknown` のままです
+- 出勤のとき画面が送るのは `routeId` だけです（`WorkStyleInput`）。ルートの名前や運賃は、サーバーが登録済みのルートから写します（`resolve-work-style.ts`）。画面が古い運賃を送ってきても、保存されるのは登録済みの値になります
+- 日付の確かめ（`backend/src/validation/date.ts` の `isDateString`）も `value is DateString` の型ガードです。形（`/^\d{4}-\d{2}-\d{2}$/`）だけでなく、`Date.UTC` で作った日付を文字列に戻して元と同じかを比べ、`2026-02-30` のような実在しない日もはじきます
+
 ### 結果を判別可能なユニオン型で返す
 
 `backend/src/validation/result.ts`:

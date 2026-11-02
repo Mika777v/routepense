@@ -1,7 +1,10 @@
-import type { DailyRecord, DateString, ExtraTrip, WorkStyle } from "@routepense/shared";
-
-/** 追加の移動を足すときに渡す値（id はサーバーが決める） */
-export type ExtraTripInput = Omit<ExtraTrip, "id">;
+import type {
+  DailyRecord,
+  DateString,
+  ExtraTrip,
+  ExtraTripInput,
+  WorkStyle,
+} from "@routepense/shared";
 
 /**
  * 日次記録の保存と読み出しの窓口（RouteRepository と同じ考え方）。
@@ -20,4 +23,13 @@ export interface DailyRecordRepository {
   delete(userId: string, date: DateString): boolean;
   /** その日の記録に追加の移動を足す。記録が無ければ undefined */
   addExtraTrip(userId: string, date: DateString, input: ExtraTripInput): ExtraTrip | undefined;
+  /** その日の追加の移動を直す。記録か移動が見つからなければ undefined */
+  updateExtraTrip(
+    userId: string,
+    date: DateString,
+    tripId: string,
+    input: ExtraTripInput,
+  ): ExtraTrip | undefined;
+  /** その日の追加の移動を消す。消せたら true */
+  deleteExtraTrip(userId: string, date: DateString, tripId: string): boolean;
 }

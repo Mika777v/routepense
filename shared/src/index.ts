@@ -3,14 +3,14 @@
 export type { ApiError, FieldError } from "./api";
 export type { BulkInput } from "./bulk";
 export { bulkTargetDates } from "./bulk";
-export type { DailyRecord } from "./daily-record";
+export type { DailyRecord, DailyRecordInput } from "./daily-record";
 export type { DateString, Weekday } from "./date";
 export { nextDate, weekdayOf } from "./date";
-export type { ExtraTrip, TripType } from "./extra-trip";
+export type { ExtraTrip, ExtraTripInput, TripType } from "./extra-trip";
 export { assertNever, dailyFare, extraTripFare, workStyleFare } from "./fare";
 export type { Route, RouteInput, RouteSnapshot, Transport } from "./route";
 export { TRANSPORTS } from "./route";
-export type { WorkStyle, WorkStyleKind } from "./work-style";
+export type { WorkStyle, WorkStyleInput, WorkStyleKind } from "./work-style";
 
 /** GET /api/health の応答。フロントとバックが同じ型を使うことを確かめるための最小の例 */
 export type HealthResponse = {

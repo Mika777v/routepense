@@ -17,3 +17,6 @@ export type ExtraTrip = {
   /** 登録済みのルートから選んだ場合の元ルート（任意） */
   sourceRouteId?: string;
 };
+
+/** 追加の移動を足す・直すときに送る値（id はサーバーが決める） */
+export type ExtraTripInput = Omit<ExtraTrip, "id">;

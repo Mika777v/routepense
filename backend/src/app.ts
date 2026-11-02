@@ -1,10 +1,13 @@
 import type { ApiError, HealthResponse } from "@routepense/shared";
 import express, { type ErrorRequestHandler } from "express";
+import { dailyRecordRouter } from "./daily-records/daily-record-router";
+import type { DailyRecordRepository } from "./daily-records/daily-record-repository";
 import type { RouteRepository } from "./routes/route-repository";
 import { routeRouter } from "./routes/route-router";
 
 export type AppDeps = {
   routes: RouteRepository;
+  dailyRecords: DailyRecordRepository;
   /** 記録の持ち主。認証はスコープ外なので、今は固定値を渡す */
   userId: string;
 };
@@ -22,6 +25,7 @@ export function createApp(deps: AppDeps) {
   });
 
   app.use("/api/routes", routeRouter(deps.routes, deps.userId));
+  app.use("/api/daily-records", dailyRecordRouter(deps.dailyRecords, deps.routes, deps.userId));
 
   // JSON として読めない本文などは、ここで 400 にする。それ以外の想定外のエラーは 500
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {

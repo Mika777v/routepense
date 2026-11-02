@@ -1,8 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { WorkStyle } from "@routepense/shared";
+import type { ExtraTripInput, WorkStyle } from "@routepense/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { openDatabase } from "../db/database";
-import type { ExtraTripInput } from "./daily-record-repository";
 import { SqliteDailyRecordRepository } from "./sqlite-daily-record-repository";
 
 const commute: WorkStyle = {
@@ -134,5 +133,41 @@ describe("SqliteDailyRecordRepository", () => {
         )
         .run(),
     ).toThrow();
+  });
+
+  it("追加の移動を直す・消すことができる", () => {
+    repo.saveWorkStyle("user-1", "2026-11-02", { kind: "remote" });
+    const added = repo.addExtraTrip("user-1", "2026-11-02", trip);
+    if (added === undefined) throw new Error("追加できていない");
+
+    const withoutPurpose: ExtraTripInput = {
+      from: trip.from,
+      to: trip.to,
+      transport: trip.transport,
+      oneWayFare: trip.oneWayFare,
+      tripType: trip.tripType,
+    };
+    const updated = repo.updateExtraTrip("user-1", "2026-11-02", added.id, {
+      ...withoutPurpose,
+      oneWayFare: 180,
+    });
+    expect(updated).toEqual({ ...withoutPurpose, id: added.id, oneWayFare: 180 });
+    expect(repo.get("user-1", "2026-11-02")?.extraTrips).toEqual([updated]);
+
+    expect(repo.deleteExtraTrip("user-1", "2026-11-02", added.id)).toBe(true);
+    expect(repo.get("user-1", "2026-11-02")?.extraTrips).toEqual([]);
+  });
+
+  it("ほかの日・ほかのユーザーの追加の移動は、直せないし消せない", () => {
+    repo.saveWorkStyle("user-1", "2026-11-02", { kind: "remote" });
+    repo.saveWorkStyle("user-1", "2026-11-03", { kind: "remote" });
+    const added = repo.addExtraTrip("user-1", "2026-11-02", trip);
+    if (added === undefined) throw new Error("追加できていない");
+
+    expect(repo.updateExtraTrip("user-1", "2026-11-03", added.id, trip)).toBeUndefined();
+    expect(repo.updateExtraTrip("user-2", "2026-11-02", added.id, trip)).toBeUndefined();
+    expect(repo.deleteExtraTrip("user-1", "2026-11-03", added.id)).toBe(false);
+    expect(repo.deleteExtraTrip("user-2", "2026-11-02", added.id)).toBe(false);
+    expect(repo.get("user-1", "2026-11-02")?.extraTrips).toEqual([added]);
   });
 });
