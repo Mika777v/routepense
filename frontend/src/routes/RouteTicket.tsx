@@ -33,6 +33,11 @@ export function RouteTicket({ route, selected, onEdit, onDelete }: Props) {
           {formatYen(route.oneWayFare)}
         </p>
         <div className="ticket-actions">
+          {route.searchUrl && (
+            <a className="button-link" href={route.searchUrl} target="_blank" rel="noopener noreferrer">
+              経路を見る
+            </a>
+          )}
           <button type="button" onClick={() => onEdit(route)}>
             編集
           </button>

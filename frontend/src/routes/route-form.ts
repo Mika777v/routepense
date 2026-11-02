@@ -10,9 +10,11 @@ export type RouteFormValues = {
   to: string;
   transport: Transport;
   oneWayFare: string;
+  /** 経路結果のページの URL（任意）。空なら送らない */
+  searchUrl: string;
 };
 
-/** 欄の名前（"name" | "from" | "to" | "transport" | "oneWayFare"） */
+/** 欄の名前（"name" | "from" | "to" | "transport" | "oneWayFare" | "searchUrl"） */
 export type RouteFormField = keyof RouteFormValues;
 
 /** 欄ごとのエラーの文。エラーの無い欄はキーが無い */
@@ -34,6 +36,7 @@ export const emptyRouteForm: RouteFormValues = {
   to: "",
   transport: "train",
   oneWayFare: "",
+  searchUrl: "",
 };
 
 /** 編集を始めるときに、登録済みのルートをフォームの値にする */
@@ -44,6 +47,7 @@ export function toRouteFormValues(route: Route): RouteFormValues {
     to: route.to,
     transport: route.transport,
     oneWayFare: String(route.oneWayFare),
+    searchUrl: route.searchUrl ?? "",
   };
 }
 
@@ -54,12 +58,15 @@ export function toRouteFormValues(route: Route): RouteFormValues {
  */
 export function toRouteInput(values: RouteFormValues): RouteInput {
   const fare = values.oneWayFare.trim();
+  const searchUrl = values.searchUrl.trim();
   return {
     name: values.name,
     from: values.from,
     to: values.to,
     transport: values.transport,
     oneWayFare: fare === "" ? Number.NaN : Number(fare),
+    // 任意のプロパティは、値が無いときはキーごと付けない（空の文字列を送らない）
+    ...(searchUrl !== "" && { searchUrl }),
   };
 }
 

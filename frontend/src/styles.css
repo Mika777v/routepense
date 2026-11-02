@@ -272,6 +272,53 @@ button.danger:hover:not(:disabled) {
   border-color: var(--danger);
 }
 
+/* リンク（新しいタブで外のページを開く）を、ボタンと同じ見た目にする */
+.button-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #b9c0cc;
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.button-link:hover {
+  border-color: var(--ink);
+}
+
+.ticket-actions .button-link {
+  padding: 0.25rem 0.625rem;
+  background: rgb(255 255 255 / 0.7);
+  font-size: 0.8125rem;
+}
+
+/* ---- 経路を調べる（U1） ---- */
+
+.route-search {
+  padding: 0.75rem;
+  border: 1px dashed #b9c0cc;
+  border-radius: var(--radius-control);
+}
+
+.route-search .notice {
+  min-height: 0;
+  margin: 0.5rem 0 0;
+}
+
+.field-hint {
+  margin: 0.25rem 0 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.url-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* ---- 一覧（切符） ---- */
 
 .notice {
@@ -400,11 +447,14 @@ button.danger:hover:not(:disabled) {
 
 .ticket-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.375rem;
 }
 
 .ticket-actions button {
   padding: 0.25rem 0.625rem;
+  white-space: nowrap;
   background: rgb(255 255 255 / 0.7);
   font-size: 0.8125rem;
 }

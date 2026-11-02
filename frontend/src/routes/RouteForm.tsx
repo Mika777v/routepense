@@ -1,4 +1,4 @@
-import { TRANSPORTS, type Route } from "@routepense/shared";
+import { TRANSPORTS, type Route, type RouteSearchResponse } from "@routepense/shared";
 import { useState, type FormEvent } from "react";
 import {
   TRANSPORT_LABELS,
@@ -10,11 +10,15 @@ import {
   type RouteFormField,
   type RouteFormValues,
 } from "./route-form";
+import { RouteSearchBox } from "./RouteSearchBox";
+import { isOpenableUrl } from "./route-search-form";
 import { createRoute, updateRoute } from "./routes-api";
 
 type Props = {
   /** 編集するルート。null なら新しく登録する */
   editing: Route | null;
+  /** 経路検索が使えるか（API のキーがあるか）。false なら「経路を見る」を出さない */
+  routeSearchAvailable: boolean;
   onSaved: (route: Route) => void;
   onCancel: () => void;
 };
@@ -24,15 +28,26 @@ type Props = {
  * 欄の値はすべて React の state に持つ（制御されたコンポーネント）。
  * 編集するルートが変わったら、親が key を変えてこのコンポーネントを作り直し、state を初期化する。
  */
-export function RouteForm({ editing, onSaved, onCancel }: Props) {
+export function RouteForm({ editing, routeSearchAvailable, onSaved, onCancel }: Props) {
   const [values, setValues] = useState<RouteFormValues>(editing ? toRouteFormValues(editing) : emptyRouteForm);
   const [errors, setErrors] = useState<RouteFormErrors>({});
   const [otherErrors, setOtherErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  /** 登録の後に増やす。経路を調べる欄の key にして、駅の欄と知らせを空に戻す */
+  const [savedCount, setSavedCount] = useState(0);
 
   /** 1つの欄を書き換える。K を欄の名前にすると、値の型も欄に合わせて決まる */
   function setField<K extends RouteFormField>(field: K, value: RouteFormValues[K]) {
     setValues((prev) => ({ ...prev, [field]: value }));
+  }
+
+  /** 経路が見つかったら URL の欄に入れる。運賃が分かる実装なら、空の運賃の欄にも入れる（手で入れた値は消さない） */
+  function handleRouteFound(response: RouteSearchResponse) {
+    setValues((prev) => ({
+      ...prev,
+      searchUrl: response.url,
+      oneWayFare: prev.oneWayFare.trim() === "" && response.fare !== undefined ? String(response.fare) : prev.oneWayFare,
+    }));
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -46,6 +61,7 @@ export function RouteForm({ editing, onSaved, onCancel }: Props) {
       setErrors({});
       setOtherErrors([]);
       setValues(emptyRouteForm);
+      setSavedCount((n) => n + 1);
       onSaved(result.value);
       return;
     }
@@ -153,6 +169,28 @@ export function RouteForm({ editing, onSaved, onCancel }: Props) {
           {...errorProps("oneWayFare")}
         />
         {fieldError("oneWayFare")}
+      </div>
+
+      {routeSearchAvailable && <RouteSearchBox key={savedCount} route={{ from: values.from, to: values.to }} onFound={handleRouteFound} />}
+
+      <div className="field">
+        <label htmlFor="searchUrl">経路の URL（任意）</label>
+        <div className="url-row">
+          <input
+            id="searchUrl"
+            type="url"
+            value={values.searchUrl}
+            onChange={(e) => setField("searchUrl", e.target.value)}
+            placeholder="https://…"
+            {...errorProps("searchUrl")}
+          />
+          {isOpenableUrl(values.searchUrl) && (
+            <a className="button-link" href={values.searchUrl.trim()} target="_blank" rel="noopener noreferrer">
+              開く
+            </a>
+          )}
+        </div>
+        {fieldError("searchUrl")}
       </div>
 
       <div className="form-actions">

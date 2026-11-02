@@ -20,7 +20,12 @@ describe("toRouteFormValues", () => {
       to: "東京",
       transport: "train",
       oneWayFare: "220",
+      searchUrl: "",
     });
+  });
+
+  it("経路の URL があれば欄に入れる", () => {
+    expect(toRouteFormValues({ ...route, searchUrl: "https://example.com/r" }).searchUrl).toBe("https://example.com/r");
   });
 });
 
@@ -44,6 +49,23 @@ describe("toRouteInput", () => {
       transport: route.transport,
       oneWayFare: route.oneWayFare,
     });
+  });
+});
+
+describe("toRouteInput の経路の URL", () => {
+  it("空（空白だけ）なら searchUrl のキーを付けない", () => {
+    expect(toRouteInput({ ...toRouteFormValues(route), searchUrl: "  " })).not.toHaveProperty("searchUrl");
+  });
+
+  it("前後の空白を除いて送る", () => {
+    expect(toRouteInput({ ...toRouteFormValues(route), searchUrl: " https://example.com/r " }).searchUrl).toBe(
+      "https://example.com/r",
+    );
+  });
+
+  it("URL のあるルートは、フォームから戻しても同じ URL になる", () => {
+    const withUrl: Route = { ...route, searchUrl: "https://example.com/r" };
+    expect(toRouteInput(toRouteFormValues(withUrl)).searchUrl).toBe(withUrl.searchUrl);
   });
 });
 
