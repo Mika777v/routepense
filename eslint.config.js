@@ -9,6 +9,12 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommended,
   {
+    // 決まりで書く必要があるが使わない引数（Express のエラー処理の next など）は、_ で始めれば許す
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  },
+  {
     files: ["backend/**/*.ts", "shared/**/*.ts", "*.js", "*.ts"],
     languageOptions: { globals: globals.node },
   },
