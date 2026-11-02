@@ -6,6 +6,7 @@ export { bulkTargetDates } from "./bulk";
 export type { DailyRecord, DailyRecordInput } from "./daily-record";
 export type { DateString, Weekday } from "./date";
 export { nextDate, weekdayOf } from "./date";
+export { HOLIDAY_YEARS, HOLIDAYS, holidayName } from "./holidays";
 export type { ExtraTrip, ExtraTripInput, TripType } from "./extra-trip";
 export type { MonthlyFare } from "./fare";
 export { assertNever, dailyFare, extraTripFare, monthlyFare, workStyleFare } from "./fare";
