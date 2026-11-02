@@ -18,17 +18,19 @@
 | 4 | 日次記録と一括設定のロジック | 完了 | [#12](https://github.com/Mika777v/routepense/issues/12) | [#32](https://github.com/Mika777v/routepense/pull/32)・[#33](https://github.com/Mika777v/routepense/pull/33)・[#34](https://github.com/Mika777v/routepense/pull/34)・[#35](https://github.com/Mika777v/routepense/pull/35)・[#36](https://github.com/Mika777v/routepense/pull/36) |
 | 5 | カレンダー入力と一括設定の画面 | 完了 | [#13](https://github.com/Mika777v/routepense/issues/13) | [#38](https://github.com/Mika777v/routepense/pull/38)・[#39](https://github.com/Mika777v/routepense/pull/39)・[#40](https://github.com/Mika777v/routepense/pull/40)・[#41](https://github.com/Mika777v/routepense/pull/41) |
 | 6 | 月ごとの一覧と合計 | 完了 | [#14](https://github.com/Mika777v/routepense/issues/14) | [#43](https://github.com/Mika777v/routepense/pull/43)・[#44](https://github.com/Mika777v/routepense/pull/44) |
-| — | MVP の後（経路検索 U1・祝日 U9） | **次** | [#15](https://github.com/Mika777v/routepense/issues/15) | |
+| — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
+| — | MVP の後: 経路検索 U1 | **次** | [#15](https://github.com/Mika777v/routepense/issues/15) | |
 
 ## 次にやること
 
-1. **MVP（ステップ1〜6）はできた。** 次は Epic [#15](https://github.com/Mika777v/routepense/issues/15)（MVP の後: 経路検索 U1・祝日 U9）。始める前に、どれから手を付けるかをオーナーと決め、Task を作る（要件の追加になるものは `needs-confirm`）
+1. **祝日（U9）はできた**（Task #28・#47〜#50）。Epic [#15](https://github.com/Mika777v/routepense/issues/15) に残っているのは経路検索（U1、Task [#27](https://github.com/Mika777v/routepense/issues/27)。`needs-confirm`）。#27 は「調べる」Task なので、何を調べて何を決めるか（有料 API を使うか・運賃を手で入れる今の形のままにするか）をオーナーと決めてから、Task を分ける
+   - 祝日の一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
 2. 月次画面の作り（`frontend/src/calendar/`）:
    - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
    - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
-3. 教科書は第13章まで。次の章は、MVP の後の作業で使う概念から選ぶ
+3. 教科書は第14章（Map と ReadonlyMap）まで。次の章は、U1 の作業で使う概念から選ぶ
 4. `npm install` で `moderate severity vulnerabilities` と出る。`npm audit fix --force` はメジャー更新を含むので使わない。直すなら原因を調べる Task を作り、オーナーに確認する
 
 ## 会話で決めたこと（ほかの文書に無いもの）
@@ -57,4 +59,9 @@
   - 合計は1日の交通費（`dailyFare`）の和、追加の移動は合計 − 通常の交通費。各日の金額・内訳の和が、必ず合計と合う
   - 合計はカレンダーの上に出し、当てはめ中は未登録の内容を含むことを添える。未入力の日があれば「合計はまだ確定していません」と赤で出す
   - 表の未入力の日の金額は「—」（0 円と見分ける）。表の日付を押すと、カレンダーと同じ日の編集パネルが開く
+- **祝日（U9）の作り**（2026-11-02）:
+  - 要件は `docs/requirements.md` の F3・F5・F6 と、決定の記録の U9
+  - 一覧は `shared/src/holidays.ts` の `HOLIDAYS`（`ReadonlyMap`。オブジェクトにすると `"constructor"` などを拾うため）。振替休日・国民の休日は、内閣府の「休日」を見分けやすい名前に分けた
+  - 一括設定の `skipHolidays` は、型でも API でも必須（省略は 400）。既定値（除く）は画面の `initialBulkForm` の1か所だけに持つ
+  - 祝日名は `CalendarDay`・`TableRow` の任意のプロパティ（祝日の日だけ付ける）。勤務区分・土日の色分けは変えない。色は深い緑（`--accent`）
 - **claude.ai のアカウントのスキル**: 文書作成（docx・pdf・pptx・xlsx）・`skill-creator` はアカウントで有効なので、どのセッションでも使える。リポジトリには入れない
