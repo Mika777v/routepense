@@ -16,6 +16,8 @@
 | 純粋関数 | 同じ入力なら必ず同じ結果を返し、外の状態を変えない関数 | 一括設定の対象日の計算 | 04-pure-functions-and-tests（予定） | static メソッドで副作用なし、に相当 |
 | バリデーション | 入力が正しいかを確かめること | API の受け口で日付・運賃・ルートIDを確認 | API の章（予定） | Bean Validation（`@NotNull` など）に相当 |
 | スナップショット | ある時点の値をコピーして保存しておくこと | 記録にルートの運賃・区間をコピーする（`RouteSnapshot`） | データ設計の章（予定） | — |
+| インターフェース・構造的型付け | 名前ではなく形で、型が合うかを決める仕組み | `RouteRepository` と `SqliteRouteRepository` | [03-interface-and-structural-typing.md](03-interface-and-structural-typing.md) | Java は名前（implements）で決まる。TS は形で決まる |
+| リポジトリ | データの保存と読み出しを受け持つ窓口 | DB を隠し、差し替えやすくする | [03-interface-and-structural-typing.md](03-interface-and-structural-typing.md) | Spring Data の Repository に近い |
 | 日付の文字列表現（YYYY-MM-DD） | タイムゾーンのずれを避けるため、日付を文字列で扱う | 日次記録の date、一括設定の期間 | 日付の扱いの章（予定） | `java.time.LocalDate` に近い考え方 |
 
 ## アプリ・業務の用語
@@ -41,6 +43,8 @@
 | スコープ外 | 今回は作らないと決めた範囲 |
 | 拡張性 | 将来の機能追加に、作り直しを少なく対応できる性質 |
 | 外部API | ほかのサービスの機能をプログラムから呼び出す窓口（例: 経路検索） |
+| ADR | Architecture Decision Record。後から変えにくい判断を、選択肢と理由と一緒に残す文書（`docs/adr/`） |
+| マイグレーション | DB のテーブルを作ったり変えたりする手順を、番号順に記録したもの |
 | 未決事項 | まだ決めていないこと。決めたら要件定義を更新する |
 | PR（プルリクエスト） | ブランチの変更を main に取り込んでもらうための依頼。差分の確認と CI の実行の場になる |
 | CI | 継続的インテグレーション。push や PR のたびに、テストなどを自動で実行する仕組み |

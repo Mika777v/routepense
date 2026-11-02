@@ -7,6 +7,7 @@
 |---|---|---|---|
 | 1 | [01-tsconfig-and-typecheck.md](01-tsconfig-and-typecheck.md) | tsconfig と型チェック | ステップ1 雛形 |
 | 2 | [02-union-types.md](02-union-types.md) | 判別可能なユニオン型 | ステップ2 共有の型 |
+| 3 | [03-interface-and-structural-typing.md](03-interface-and-structural-typing.md) | インターフェースと構造的型付け | ステップ3 ルートの保存 |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 

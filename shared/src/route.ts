@@ -21,3 +21,6 @@ export type Route = {
  * ルートを後から編集・削除しても、過去の記録の金額と区間が変わらないようにする。
  */
 export type RouteSnapshot = Pick<Route, "name" | "from" | "to" | "transport" | "oneWayFare">;
+
+/** ルートを登録・編集するときに送る値（id と userId はサーバーが決める） */
+export type RouteInput = Omit<Route, "id" | "userId">;

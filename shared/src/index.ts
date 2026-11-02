@@ -5,7 +5,7 @@ export type { DailyRecord } from "./daily-record";
 export type { DateString, Weekday } from "./date";
 export type { ExtraTrip, TripType } from "./extra-trip";
 export { assertNever, dailyFare, extraTripFare, workStyleFare } from "./fare";
-export type { Route, RouteSnapshot, Transport } from "./route";
+export type { Route, RouteInput, RouteSnapshot, Transport } from "./route";
 export type { WorkStyle, WorkStyleKind } from "./work-style";
 
 /** GET /api/health の応答。フロントとバックが同じ型を使うことを確かめるための最小の例 */
