@@ -11,13 +11,21 @@ type Props = {
   onSelect: (date: DateString) => void;
 };
 
+/** 祝日名。祝日でない日は何も出さない */
+function HolidayName({ day }: { day: CalendarDay }) {
+  return day.holidayName !== undefined ? <span className="cal-holiday">{day.holidayName}</span> : null;
+}
+
 /** 1マス分の中身。記録の有無で表示を分ける */
 function DayContent({ day }: { day: CalendarDay }) {
   const { status } = day;
   if (status.kind === "unentered") {
     return (
       <>
-        <span className="cal-date">{day.day}</span>
+        <span className="cal-date">
+          {day.day}
+          <HolidayName day={day} />
+        </span>
         <span className="cal-kind">未入力</span>
       </>
     );
@@ -27,6 +35,7 @@ function DayContent({ day }: { day: CalendarDay }) {
     <>
       <span className="cal-date">
         {day.day}
+        <HolidayName day={day} />
         {day.isDraft && <span className="cal-draft-mark">未保存</span>}
       </span>
       <span className="cal-kind">{workStyleLabel(workStyle)}</span>

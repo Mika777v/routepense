@@ -67,6 +67,16 @@ describe("buildCalendar", () => {
     expect(countUnentered(weeks)).toBe(28);
   });
 
+  it("祝日には祝日名を持たせ、祝日でない日はプロパティ自体を持たない", () => {
+    const days = buildCalendar("2026-11", [record("2026-11-03", { kind: "commute", routeId: "r1", route })]).flat();
+    const nov3 = days.find((day) => day?.date === "2026-11-03");
+    expect(nov3?.holidayName).toBe("文化の日");
+    // 祝日でも、勤務区分（出勤）はそのまま
+    expect(nov3?.status).toMatchObject({ kind: "recorded", fare: 440 });
+    expect(days.find((day) => day?.date === "2026-11-23")?.holidayName).toBe("勤労感謝の日");
+    expect(days.find((day) => day?.date === "2026-11-04")).not.toHaveProperty("holidayName");
+  });
+
   it("交通費には追加の移動も含める", () => {
     const weeks = buildCalendar("2026-11", [
       record("2026-11-05", { kind: "remote" }, [

@@ -117,4 +117,9 @@ describe("buildTableRows", () => {
     expect(rows.find((r) => r.date === "2026-11-03")?.isDraft).toBe(true);
     expect(rows.find((r) => r.date === "2026-11-02")?.isDraft).toBe(false);
   });
+
+  it("祝日の行は祝日名を持つ。土日の印は付けない（11/3 は火曜）", () => {
+    expect(rows.find((r) => r.date === "2026-11-03")).toMatchObject({ holidayName: "文化の日", isWeekend: false });
+    expect(rows.find((r) => r.date === "2026-11-02")).not.toHaveProperty("holidayName");
+  });
 });

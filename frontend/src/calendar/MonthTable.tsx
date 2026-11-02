@@ -79,6 +79,7 @@ export function MonthTable({ rows, caption, fare, selectedDate, onSelect }: Prop
               >
                 {row.dateLabel}
               </button>
+              {row.holidayName !== undefined && <span className="cal-holiday">{row.holidayName}</span>}
               {row.isDraft && <span className="cal-draft-mark">未保存</span>}
             </th>
             <td className="table-kind">{row.kindLabel}</td>
