@@ -1,6 +1,7 @@
 import {
   assertNever,
   dailyFare,
+  holidayName,
   weekdayOf,
   type DailyRecord,
   type DateString,
@@ -26,6 +27,8 @@ export type CalendarDay = {
   /** 日（1〜31） */
   day: number;
   weekday: Weekday;
+  /** 祝日なら祝日名（例: 文化の日）。祝日でない日はプロパティごと無い（要件定義 F5） */
+  holidayName?: string;
   status: DayStatus;
   /** 一括設定で当てはめた、まだ保存していない日か */
   isDraft: boolean;
@@ -104,10 +107,13 @@ export function buildCalendar(
   for (let day = 1; day <= daysInMonth(month); day++) {
     const date = `${month}-${pad2(day)}`;
     const record = byDate.get(date);
+    const holiday = holidayName(date);
     days.push({
       date,
       day,
       weekday: weekdayOf(date),
+      // 祝日でない日は holidayName を書かない（undefined を入れずに、プロパティを付けない。第11章）
+      ...(holiday !== undefined && { holidayName: holiday }),
       status: record ? { kind: "recorded", record, fare: dailyFare(record) } : { kind: "unentered" },
       isDraft: draftDates.has(date),
     });

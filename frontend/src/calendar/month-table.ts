@@ -22,6 +22,8 @@ export type TableRow = {
   dateLabel: string;
   /** 土日か（行の色分けに使う） */
   isWeekend: boolean;
+  /** 祝日なら祝日名。勤務区分は変えず、日付の横に添えるだけ */
+  holidayName?: string;
   /** 勤務区分の表示名（在宅 / 出勤（ルート名） / 休日 / 未入力） */
   kindLabel: string;
   /** 勤務区分による通常の交通費。未入力は null */
@@ -44,6 +46,7 @@ export function toTableRow(day: CalendarDay): TableRow {
     date: day.date,
     dateLabel: dateLabel(day),
     isWeekend: day.weekday === 0 || day.weekday === 6,
+    ...(day.holidayName !== undefined && { holidayName: day.holidayName }),
     isDraft: day.isDraft,
   };
   const { status } = day;

@@ -597,6 +597,14 @@ button.danger:hover:not(:disabled) {
   font-variant-numeric: tabular-nums;
 }
 
+/* 祝日名。曜日の見出しの土日と同じ深い緑にし、赤（未入力・エラー）とは見分ける */
+.cal-holiday {
+  margin-left: 0.375rem;
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
 .cal-kind {
   overflow-wrap: anywhere;
 }

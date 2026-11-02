@@ -94,6 +94,27 @@ sourceRouteId: trip.sourceRouteId ?? "",
 
 `trip.purpose` が `undefined` か `""` なら、何も描きません。
 
+### 祝日の日だけ、祝日名を持たせる（`frontend/src/calendar/month.ts` の `buildCalendar`）
+
+```ts
+export type CalendarDay = {
+  date: DateString;
+  // ……
+  /** 祝日なら祝日名（例: 文化の日）。祝日でない日はプロパティごと無い */
+  holidayName?: string;
+  // ……
+};
+
+const holiday = holidayName(date); // string | undefined（第14章）
+days.push({
+  date,
+  // ……
+  ...(holiday !== undefined && { holidayName: holiday }),
+});
+```
+
+祝日は1か月に数日だけなので、ほとんどの日は「祝日名が無い」日です。任意のプロパティにして、祝日の日だけ付けます。表示する側（`MonthCalendar.tsx`）は `day.holidayName !== undefined` で確かめてから出します。テストでは `expect(day).not.toHaveProperty("holidayName")` で、祝日でない日にプロパティが付いていないことを確かめています（下の「よくある間違い」の3）。
+
 ## よくある間違いと、型エラーの読み方
 
 ### 1. 確かめずに読む（型エラーになる例）
