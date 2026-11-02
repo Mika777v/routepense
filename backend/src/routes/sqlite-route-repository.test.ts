@@ -5,6 +5,7 @@ import type { DatabaseSync } from "node:sqlite";
 import type { RouteInput } from "@routepense/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { openDatabase } from "../db/database";
+import { migrations } from "../db/migrations";
 import { SqliteRouteRepository } from "./sqlite-route-repository";
 
 const input: RouteInput = {
@@ -86,7 +87,7 @@ describe("openDatabase", () => {
       // 2回目にも CREATE TABLE が走ると「table routes already exists」で落ちる
       const second = openDatabase(file);
       const version = second.prepare("PRAGMA user_version").get() as { user_version: number };
-      expect(version.user_version).toBe(1);
+      expect(version.user_version).toBe(migrations.at(-1)?.version);
       expect(new SqliteRouteRepository(second).list("user-1")).toHaveLength(1);
       second.close();
     } finally {
