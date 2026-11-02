@@ -1,6 +1,6 @@
 # ADR-0001: SQLite には Node.js 組み込みの node:sqlite を使う
 
-- 状態: 提案（オーナーの確認待ち）
+- 状態: 決定
 - 日付: 2026-11-02
 
 ADR（Architecture Decision Record）は、後から変えにくい設計の判断について、選択肢と理由を残す文書です。

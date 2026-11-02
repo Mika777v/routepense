@@ -7,4 +7,4 @@ ADR を追加・変更する PR は、自動マージせずにオーナーが読
 
 | 番号 | タイトル | 状態 |
 |---|---|---|
-| [0001](0001-sqlite-driver.md) | SQLite には Node.js 組み込みの node:sqlite を使う | 提案 |
+| [0001](0001-sqlite-driver.md) | SQLite には Node.js 組み込みの node:sqlite を使う | 決定 |
