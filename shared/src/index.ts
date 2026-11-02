@@ -15,3 +15,6 @@ export type HealthResponse = {
   status: "ok";
   time: string;
 };
+
+export type { BulkApplyResult, DailyRecordDraft } from "./bulk-apply";
+export { applyBulk } from "./bulk-apply";
