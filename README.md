@@ -18,7 +18,7 @@ npm の **ワークスペース**（1つのリポジトリで複数のパッケ�
 
 ## 動かし方
 
-Node.js 22.12 以上が必要です。
+Node.js 22.13 以上が必要です（SQLite を Node.js に組み込みの `node:sqlite` で使うため）。
 
 ```bash
 npm install
