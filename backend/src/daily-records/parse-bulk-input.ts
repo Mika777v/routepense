@@ -26,6 +26,7 @@ function monthOf(date: string): string {
  * 一括設定の下見の入力（期間・曜日・勤務区分）を確かめる。
  * - 開始日・終了日が実在する日で、終了日 ≥ 開始日、同じ月の中（要件定義 U8）
  * - 曜日は 0〜6 の整数で、1つ以上（重なりは1つにまとめる）
+ * - 祝日を除くかは true / false（要件定義 F3。省略は認めない。画面の送り忘れを 400 で見つけるため）
  */
 export function parseBulkPreviewRequest(body: unknown): Result<BulkPreviewRequest> {
   if (!isRecord(body)) {
@@ -33,7 +34,7 @@ export function parseBulkPreviewRequest(body: unknown): Result<BulkPreviewReques
   }
   const errors: FieldError[] = [];
 
-  const { startDate, endDate, weekdays } = body;
+  const { startDate, endDate, weekdays, skipHolidays } = body;
   if (!isDateString(startDate)) {
     errors.push({ field: "startDate", message: "開始日は YYYY-MM-DD の実在する日で指定してください" });
   }
@@ -54,6 +55,10 @@ export function parseBulkPreviewRequest(body: unknown): Result<BulkPreviewReques
     errors.push({ field: "weekdays", message: "曜日は 0（日）〜 6（土）の数で指定してください" });
   }
 
+  if (typeof skipHolidays !== "boolean") {
+    errors.push({ field: "skipHolidays", message: "祝日を除くかは true か false で指定してください" });
+  }
+
   const workStyle = parseWorkStyleInput(body.workStyle);
   if (!workStyle.ok) {
     errors.push(...workStyle.errors);
@@ -65,13 +70,14 @@ export function parseBulkPreviewRequest(body: unknown): Result<BulkPreviewReques
     !isDateString(endDate) ||
     !Array.isArray(weekdays) ||
     !weekdays.every(isWeekday) ||
+    typeof skipHolidays !== "boolean" ||
     !workStyle.ok
   ) {
     return { ok: false, errors };
   }
   // Set で重なりを除き、小さい順に並べる
   const unique = [...new Set(weekdays)].sort((a, b) => a - b);
-  return { ok: true, value: { startDate, endDate, weekdays: unique, workStyle: workStyle.value } };
+  return { ok: true, value: { startDate, endDate, weekdays: unique, skipHolidays, workStyle: workStyle.value } };
 }
 
 /**

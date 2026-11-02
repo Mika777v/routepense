@@ -65,6 +65,7 @@ describe("/api/daily-records/bulk", () => {
         startDate: "2026-11-01",
         endDate: "2026-11-08",
         weekdays: WEEKDAYS,
+        skipHolidays: false,
         workStyle: { kind: "commute", routeId: route.id },
       });
       expect(res.status).toBe(200);
@@ -89,8 +90,24 @@ describe("/api/daily-records/bulk", () => {
       expect(await listNovember()).toHaveLength(1);
     });
 
+    it("祝日を除くと、祝日（11/3 文化の日）は当てはめず、その日の記録も上書きしない", async () => {
+      await send("PUT", "/daily-records/2026-11-03", { workStyle: { kind: "holiday" } });
+
+      const res = await send("POST", "/daily-records/bulk/preview", {
+        startDate: "2026-11-01",
+        endDate: "2026-11-08",
+        weekdays: WEEKDAYS,
+        skipHolidays: true,
+        workStyle: { kind: "remote" },
+      });
+      expect(res.status).toBe(200);
+      const preview = (await res.json()) as BulkApplyResult;
+      expect(preview.records.map((r) => r.date)).toEqual(["2026-11-02", "2026-11-04", "2026-11-05", "2026-11-06"]);
+      expect(preview.overwrittenDates).toEqual([]);
+    });
+
     it("期間が月をまたぐ・終了日が開始日より前・曜日が無いと 400", async () => {
-      const base = { weekdays: WEEKDAYS, workStyle: { kind: "remote" } };
+      const base = { weekdays: WEEKDAYS, skipHolidays: true, workStyle: { kind: "remote" } };
 
       const crossMonth = await send("POST", "/daily-records/bulk/preview", {
         ...base,
@@ -121,6 +138,7 @@ describe("/api/daily-records/bulk", () => {
         startDate: "2026-02-30",
         endDate: "2026-11-30",
         weekdays: [1, 7],
+        skipHolidays: true,
         workStyle: { kind: "remote" },
       });
       expect(await fieldsOf(badWeekday)).toEqual(["startDate", "weekdays"]);
@@ -129,10 +147,22 @@ describe("/api/daily-records/bulk", () => {
         startDate: "2026-11-01",
         endDate: "2026-11-30",
         weekdays: WEEKDAYS,
+        skipHolidays: true,
         workStyle: { kind: "commute", routeId: "no-such-route" },
       });
       expect(noRoute.status).toBe(400);
       expect(await fieldsOf(noRoute)).toEqual(["workStyle.routeId"]);
+    });
+
+    it("祝日を除くかが無い・true / false でないと 400", async () => {
+      const base = { startDate: "2026-11-01", endDate: "2026-11-30", weekdays: WEEKDAYS, workStyle: { kind: "remote" } };
+
+      const missing = await send("POST", "/daily-records/bulk/preview", base);
+      expect(missing.status).toBe(400);
+      expect(await fieldsOf(missing)).toEqual(["skipHolidays"]);
+
+      const notBoolean = await send("POST", "/daily-records/bulk/preview", { ...base, skipHolidays: "true" });
+      expect(await fieldsOf(notBoolean)).toEqual(["skipHolidays"]);
     });
   });
 

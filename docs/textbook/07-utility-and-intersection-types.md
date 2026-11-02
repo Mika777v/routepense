@@ -92,7 +92,7 @@ export type RouteSnapshot = Pick<Route, "name" | "from" | "to" | "transport" | "
 
 ```ts
 export function bulkTargetDates(
-  input: Pick<BulkInput, "startDate" | "endDate" | "weekdays">,
+  input: Pick<BulkInput, "startDate" | "endDate" | "weekdays" | "skipHolidays">,
 ): DateString[] { /* ... */ }
 
 export function dailyFare(record: Pick<DailyRecord, "workStyle" | "extraTrips">): number { /* ... */ }
