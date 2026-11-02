@@ -22,3 +22,4 @@ export type HealthResponse = {
 
 export type { BulkApplyResult, DailyRecordDraft } from "./bulk-apply";
 export { applyBulk } from "./bulk-apply";
+export type { RouteSearchResponse, RouteSearchStatus } from "./route-search";
