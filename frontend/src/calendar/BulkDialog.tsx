@@ -2,6 +2,7 @@ import type { BulkApplyResult, Route } from "@routepense/shared";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   WEEKDAY_PRESETS,
+  holidaysInRange,
   initialBulkForm,
   toBulkFormErrors,
   toBulkPreviewRequest,
@@ -38,6 +39,7 @@ export function BulkDialog({ month, routes, onApply, onClose }: Props) {
     dialogRef.current?.showModal();
   }, []);
 
+  const holidays = holidaysInRange(values.startDate, values.endDate);
   const firstDay = `${month}-01`;
   const lastDay = `${month}-${String(daysInMonth(month)).padStart(2, "0")}`;
 
@@ -130,6 +132,18 @@ export function BulkDialog({ month, routes, onApply, onClose }: Props) {
             ))}
           </div>
           {errors.weekdays && <p className="field-error">{errors.weekdays}</p>}
+          <label className="bulk-holiday">
+            <input
+              type="checkbox"
+              checked={values.skipHolidays}
+              aria-describedby="bulk-holiday-list"
+              onChange={(e) => update("skipHolidays", e.target.checked)}
+            />
+            祝日を除く
+          </label>
+          <p id="bulk-holiday-list" className="muted bulk-note">
+            {holidays.length > 0 ? `期間の祝日: ${holidays.join("・")}` : "期間に祝日はありません"}
+          </p>
         </fieldset>
 
         <fieldset className="field">

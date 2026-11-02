@@ -143,6 +143,18 @@ export const TRANSPORT_LABELS: Record<Transport, string> = {
 
 `useState` の初期値は、コンポーネントが最初に作られたときに1回だけ使われます。別のルートの「編集」を押しても、そのままでは欄の値が入れ替わりません。`key` を変えると、React はそのコンポーネントを捨てて作り直すので、新しい初期値で state が始まります。
 
+### チェックボックスは value ではなく checked（`frontend/src/calendar/BulkDialog.tsx`）
+
+```tsx
+<input
+  type="checkbox"
+  checked={values.skipHolidays} // boolean
+  onChange={(e) => update("skipHolidays", e.target.checked)}
+/>
+```
+
+文字の欄は `value`（`string`）を渡して `e.target.value` を読みますが、チェックボックスは `checked`（`boolean`）を渡して `e.target.checked` を読みます。フォームの型（`BulkFormValues`）でも `skipHolidays: boolean` にしてあるので、`update("skipHolidays", e.target.value)` と書くと型エラーになります（`string` は `boolean` に入れられない）。値の型をフォームの型で決めておくと、読む属性の取り違えを型チェックが見つけてくれます。
+
 ## よくある間違いと、型エラーの読み方
 
 ### 1. フォームの型で、数の欄を number にする
