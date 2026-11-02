@@ -19,10 +19,11 @@
 | 12 | [12-reduce.md](12-reduce.md) | 配列を1つの値にまとめる（reduce） | ステップ6 月の交通費の合計 |
 | 13 | [13-type-predicates.md](13-type-predicates.md) | 型の述語（filter で null を除く） | ステップ6 表表示 |
 | 14 | [14-map-and-readonlymap.md](14-map-and-readonlymap.md) | Map と ReadonlyMap（キーで引く一覧） | MVP の後 祝日の一覧 |
+| 15 | [15-dependency-injection.md](15-dependency-injection.md) | インターフェースと実装の差し替え（依存性の注入） | MVP の後 経路検索の API |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- （次の章は、祝日の一括設定・表示の作業（#48〜#50）と一緒に決める）
+- （次の章は、経路検索の画面の作業（#60）と一緒に決める）
 
 ## そのほかのファイル
 

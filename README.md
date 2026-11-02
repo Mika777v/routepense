@@ -30,6 +30,25 @@ npm run dev
 
 ブラウザで http://localhost:5173 を開くと、ルートの管理画面が出ます。ルートを登録して一覧に出れば、画面と API がつながっています。
 
+## 経路検索（駅すぱあと API）のキー
+
+ルートの登録で、駅名から経路結果のページを開く機能（要件 U1・[ADR-0002](docs/adr/0002-route-search.md)）は、駅すぱあと API フリープランのアクセスキーがあるときだけ使えます。キーが無くても、ほかの機能はそのまま動きます。
+
+1. キーを申し込む: <https://api-info.ekispert.com/form/free/>（キーはメールで届きます）
+2. `backend/.env` を作り、キーを書く（`.env` は `.gitignore` 済みです。キーはリポジトリにもフロントにも置きません）
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+```dotenv
+EKISPERT_API_KEY=届いたキー
+```
+
+3. `npm run dev` で起動すると、backend のログに `経路検索: 駅すぱあと API フリープラン` と出ます。キーが無いときは `使えない` と出ます
+
+注意: フリープランのキーは、申し込みのときに書いたドメインに結び付きます。仕様書によると、localhost から使うと 403 になり、使うには `info@val.co.jp` への連絡が要ります。
+
 ## 確認のコマンド
 
 ```bash
