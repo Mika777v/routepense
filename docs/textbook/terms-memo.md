@@ -8,9 +8,9 @@
 
 | 用語 | 一言の説明 | 要件の中での使われ方 | 使う章（予定） | Java との対比メモ |
 |---|---|---|---|---|
-| 判別可能なユニオン型 | 共通の目印（`kind`）で、どの形かを見分けられる「AまたはB」の型 | 勤務区分 `WorkStyle` = 在宅 \| 出勤 | 02-union-types | Java の sealed interface + record に近い。`switch` で網羅性を確認できる |
-| リテラル型 | 特定の値だけを許す型（例: `"train"`） | 交通手段 `"train" \| "bus" \| "other"`、片道/往復 `"oneWay" \| "roundTrip"` | 02-union-types | Java の enum に近いが、値そのものが型になる |
-| 型の共有（`shared/`） | フロントとバックで同じ型定義を使うこと | Route, DailyRecord などを `shared/` に置く | 01-typescript-basics（またはモジュールの章） | Java で共通の jar やモジュールを参照するイメージ |
+| 判別可能なユニオン型 | 共通の目印（`kind`）で、どの形かを見分けられる「AまたはB」の型 | 勤務区分 `WorkStyle` = 在宅 \| 出勤 \| 休日 | [02-union-types.md](02-union-types.md) | Java の sealed interface + record に近い。`switch` で網羅性を確認できる |
+| リテラル型 | 特定の値だけを許す型（例: `"train"`） | 交通手段 `"train" \| "bus" \| "other"`、片道/往復 `"oneWay" \| "roundTrip"` | [02-union-types.md](02-union-types.md) | Java の enum に近いが、値そのものが型になる |
+| 型の共有（`shared/`） | フロントとバックで同じ型定義を使うこと | Route, DailyRecord などを `shared/` に置く | [01-tsconfig-and-typecheck.md](01-tsconfig-and-typecheck.md)（`HealthResponse` の例） | Java で共通の jar やモジュールを参照するイメージ |
 | オプショナルなプロパティ | あってもなくてもよい項目（`purpose?: string`） | 追加の移動の目的、元ルートID | 01-typescript-basics | Java の `Optional` や null 許容の項目 |
 | 配列型 | 同じ型の値の並び（`ExtraTrip[]`） | 日次記録の追加の移動 | 01-typescript-basics | Java の `List<ExtraTrip>` |
 | 純粋関数 | 同じ入力なら必ず同じ結果を返し、外の状態を変えない関数 | 一括設定の対象日の計算 | 04-pure-functions-and-tests（予定） | static メソッドで副作用なし、に相当 |
