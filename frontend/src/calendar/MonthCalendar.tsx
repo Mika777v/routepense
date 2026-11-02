@@ -25,7 +25,10 @@ function DayContent({ day }: { day: CalendarDay }) {
   const { workStyle, extraTrips } = status.record;
   return (
     <>
-      <span className="cal-date">{day.day}</span>
+      <span className="cal-date">
+        {day.day}
+        {day.isDraft && <span className="cal-draft-mark">未保存</span>}
+      </span>
       <span className="cal-kind">{workStyleLabel(workStyle)}</span>
       <span className="cal-fare">
         {status.fare > 0 ? formatYen(status.fare) : ""}
@@ -63,7 +66,7 @@ export function MonthCalendar({ weeks, caption, selectedDate, onSelect }: Props)
           <tr key={week.find((day) => day !== null)?.date}>
             {week.map((day, i) =>
               day ? (
-                <td key={day.date} className={`cal-day is-${cellKind(day)}`}>
+                <td key={day.date} className={`cal-day is-${cellKind(day)}${day.isDraft ? " is-draft" : ""}`}>
                   <button
                     type="button"
                     className="cal-button"

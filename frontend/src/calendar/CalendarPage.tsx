@@ -1,9 +1,20 @@
-import type { DailyRecord, DateString } from "@routepense/shared";
+import type { BulkApplyResult, DailyRecord, DateString } from "@routepense/shared";
 import { useEffect, useState } from "react";
 import { listRoutes } from "../routes/routes-api";
-import { listDailyRecords } from "./daily-records-api";
-import { removeRecord, upsertRecord } from "./day-edit";
+import { listDailyRecords, saveBulk } from "./daily-records-api";
+import { BulkDialog } from "./BulkDialog";
+import { errorMessage, removeRecord, upsertRecord } from "./day-edit";
 import { DayPanel, type RoutesState } from "./DayPanel";
+import {
+  mergeDraft,
+  overlayDraft,
+  setDraftDay,
+  summarizeDraft,
+  toDraftWorkStyle,
+  type Draft,
+  type DraftSummary,
+} from "./draft";
+import { DraftBar } from "./DraftBar";
 import { MonthCalendar } from "./MonthCalendar";
 import { buildCalendar, countUnentered, currentMonth, monthLabel, shiftMonth, type MonthString } from "./month";
 
@@ -23,6 +34,13 @@ export function CalendarPage() {
   const [load, setLoad] = useState<LoadState>({ kind: "loading", month });
   const [routes, setRoutes] = useState<RoutesState>({ kind: "loading" });
   const [selectedDate, setSelectedDate] = useState<DateString | null>(null);
+  // 一括設定: ダイアログを開いているか、当てはめ中の内容、登録の前の確認、登録中か、その結果
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [draft, setDraft] = useState<Draft>(() => new Map());
+  const [confirming, setConfirming] = useState<DraftSummary | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     // 月が変わるたびに読み直す。読み終わる前に月を切り替えたら、古い月の結果は捨てる
@@ -63,29 +81,97 @@ export function CalendarPage() {
     setLoad((prev) => (prev.kind === "ok" ? { ...prev, records: update(prev.records) } : prev));
   }
 
+  function applyBulk(result: BulkApplyResult) {
+    setBulkOpen(false);
+    setDraft((prev) => mergeDraft(prev, result.records));
+    setConfirming(null);
+    setDraftError(null);
+    setNotice(`${result.records.length}日に当てはめました。まだ保存していません`);
+  }
+
+  function discardDraft() {
+    setDraft(new Map());
+    setConfirming(null);
+    setDraftError(null);
+    setNotice("当てはめを取り消しました");
+  }
+
+  async function saveDraft(summary: DraftSummary) {
+    setSavingDraft(true);
+    setDraftError(null);
+    const result = await saveBulk(summary.request);
+    setSavingDraft(false);
+    if (!result.ok) {
+      setDraftError(errorMessage(result.error));
+      return;
+    }
+    updateRecords((records) => result.value.reduce(upsertRecord, records));
+    setDraft(new Map());
+    setConfirming(null);
+    setNotice(`${result.value.length}日分を登録しました`);
+  }
+
   // 読み込み中（または前の月の結果しか無いとき）は、記録の無いカレンダーを出さずに待つ
   const current = load.month === month ? load : { kind: "loading" as const, month };
-  const weeks = current.kind === "ok" ? buildCalendar(month, current.records) : null;
+  const saved = current.kind === "ok" ? current.records : [];
+  const hasDraft = draft.size > 0;
+  const weeks =
+    current.kind === "ok" ? buildCalendar(month, overlayDraft(saved, draft), new Set(draft.keys())) : null;
   const unentered = weeks ? countUnentered(weeks) : null;
-  const selectedRecord =
-    current.kind === "ok" && selectedDate ? current.records.find((r) => r.date === selectedDate) : undefined;
+  const selectedRecord = selectedDate ? saved.find((r) => r.date === selectedDate) : undefined;
+
+  function handleSave() {
+    const summary = summarizeDraft(draft, saved);
+    // 上書きする日があれば、先に確かめる。無ければそのまま登録する
+    if (summary.overwrittenDates.length > 0) setConfirming(summary);
+    else void saveDraft(summary);
+  }
 
   return (
     <section className="calendar-page" aria-labelledby="calendar-heading">
       <div className="calendar-toolbar">
-        <button type="button" onClick={() => changeMonth(shiftMonth(month, -1))} aria-label="前の月">
+        <button
+          type="button"
+          disabled={hasDraft}
+          onClick={() => changeMonth(shiftMonth(month, -1))}
+          aria-label="前の月"
+        >
           ‹ 前の月
         </button>
         <h2 id="calendar-heading" aria-live="polite">
           {monthLabel(month)}
         </h2>
-        <button type="button" onClick={() => changeMonth(shiftMonth(month, 1))} aria-label="次の月">
+        <button
+          type="button"
+          disabled={hasDraft}
+          onClick={() => changeMonth(shiftMonth(month, 1))}
+          aria-label="次の月"
+        >
           次の月 ›
         </button>
-        <button type="button" className="calendar-today" onClick={() => changeMonth(currentMonth())}>
+        <button
+          type="button"
+          className="calendar-today"
+          disabled={hasDraft}
+          onClick={() => changeMonth(currentMonth())}
+        >
           今月
         </button>
+        <button
+          type="button"
+          className="primary"
+          disabled={current.kind !== "ok" || routes.kind !== "ok"}
+          onClick={() => {
+            setNotice(null);
+            setBulkOpen(true);
+          }}
+        >
+          一括設定
+        </button>
       </div>
+      <p className="notice" role="status">
+        {notice}
+      </p>
 
       {current.kind === "loading" && <p className="muted">読み込んでいます…</p>}
       {current.kind === "error" && (
@@ -99,6 +185,18 @@ export function CalendarPage() {
             {unentered === 0 ? "すべての日に入力があります" : `未入力の日: ${unentered}日`}
             <span className="calendar-hint">日を押すと、勤務区分を選べます</span>
           </p>
+          {hasDraft && (
+            <DraftBar
+              count={draft.size}
+              confirming={confirming}
+              saving={savingDraft}
+              error={draftError}
+              onSave={handleSave}
+              onConfirm={() => confirming && void saveDraft(confirming)}
+              onBack={() => setConfirming(null)}
+              onDiscard={discardDraft}
+            />
+          )}
           <div className={selectedDate ? "calendar-body has-panel" : "calendar-body"}>
             <div className="calendar-scroll">
               <MonthCalendar
@@ -118,10 +216,27 @@ export function CalendarPage() {
                 onSaved={(record) => updateRecords((records) => upsertRecord(records, record))}
                 onCleared={(date) => updateRecords((records) => removeRecord(records, date))}
                 onClose={() => setSelectedDate(null)}
+                draft={
+                  hasDraft
+                    ? {
+                        workStyle: draft.get(selectedDate),
+                        onChange: (choice) => {
+                          const workStyle =
+                            choice && routes.kind === "ok" ? toDraftWorkStyle(choice, routes.routes) : undefined;
+                          setDraft((prev) => setDraftDay(prev, selectedDate, workStyle ?? null));
+                          // 直したら、確認の内容は作り直す
+                          setConfirming(null);
+                        },
+                      }
+                    : undefined
+                }
               />
             )}
           </div>
         </>
+      )}
+      {bulkOpen && routes.kind === "ok" && (
+        <BulkDialog month={month} routes={routes.routes} onApply={applyBulk} onClose={() => setBulkOpen(false)} />
       )}
     </section>
   );

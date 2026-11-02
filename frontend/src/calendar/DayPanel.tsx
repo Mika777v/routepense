@@ -1,8 +1,15 @@
-import { extraTripFare, type DailyRecord, type DateString, type Route } from "@routepense/shared";
+import {
+  extraTripFare,
+  type DailyRecord,
+  type DateString,
+  type Route,
+  type WorkStyle,
+  type WorkStyleInput,
+} from "@routepense/shared";
 import { useEffect, useRef, useState } from "react";
 import { formatYen } from "../routes/route-form";
 import { deleteDailyRecord, saveDailyRecord } from "./daily-records-api";
-import { choiceOf, dayLabel, errorMessage, isSameChoice, type DayChoice } from "./day-edit";
+import { choiceOf, dayLabel, errorMessage, isSameChoice, toWorkStyleInput, type DayChoice } from "./day-edit";
 
 /** ルートの一覧の読み込みの状態（親の CalendarPage が持つ） */
 export type RoutesState = { kind: "loading" } | { kind: "ok"; routes: Route[] } | { kind: "error"; message: string };
@@ -17,6 +24,11 @@ type Props = {
   /** 未入力に戻せたとき */
   onCleared: (date: DateString) => void;
   onClose: () => void;
+  /**
+   * 一括設定の当てはめ中だけ渡す。渡されたら、選んだ内容は保存せず、当てはめ中の内容を直す（「登録」でまとめて保存する）。
+   * workStyle はその日に当てはめた勤務区分（当てはめていなければ undefined）。onChange(null) で当てはめを外す
+   */
+  draft?: { workStyle: WorkStyle | undefined; onChange: (choice: WorkStyleInput | null) => void };
 };
 
 /** 選べるもの1つ分（ボタンに出す名前と、選んだときの値） */
@@ -49,7 +61,7 @@ function buildOptions(record: DailyRecord | undefined, routes: Route[]): Option[
  * 日の編集パネル。勤務区分のボタンを押した時点で保存する（要件定義 F2・U4）。
  * 保存の結果は onSaved・onCleared で親に渡し、カレンダーの表示は親が持つ記録の一覧から作り直す。
  */
-export function DayPanel({ date, record, routes, onSaved, onCleared, onClose }: Props) {
+export function DayPanel({ date, record, routes, onSaved, onCleared, onClose, draft }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -59,11 +71,17 @@ export function DayPanel({ date, record, routes, onSaved, onCleared, onClose }: 
     headingRef.current?.focus();
   }, [date]);
 
-  const selected = choiceOf(record);
+  // 当てはめ中の日は、当てはめた内容を今の選択として見せる
+  const selected = draft?.workStyle ? toWorkStyleInput(draft.workStyle) : choiceOf(record);
   const options = routes.kind === "ok" ? buildOptions(record, routes.routes) : [];
 
   async function choose(choice: DayChoice) {
     if (saving || isSameChoice(choice, selected)) return;
+    if (draft) {
+      // 当てはめ中は保存しない。未入力に戻す（記録を消す）ことは、一括設定ではできないので選ばせない
+      if (choice.kind !== "unentered") draft.onChange(choice);
+      return;
+    }
     if (choice.kind === "unentered") {
       const trips = record?.extraTrips.length ?? 0;
       if (trips > 0 && !window.confirm(`この日の追加の移動（${trips}件）も消えます。未入力に戻しますか？`)) {
@@ -94,7 +112,9 @@ export function DayPanel({ date, record, routes, onSaved, onCleared, onClose }: 
           閉じる
         </button>
       </div>
-      <p className="muted day-panel-hint">選ぶとすぐ保存します</p>
+      <p className="muted day-panel-hint">
+        {draft ? "当てはめ中です。選んだ内容は「登録」でまとめて保存します" : "選ぶとすぐ保存します"}
+      </p>
 
       {routes.kind === "loading" && <p className="muted">ルートを読み込んでいます…</p>}
       {routes.kind === "error" && (
@@ -120,15 +140,23 @@ export function DayPanel({ date, record, routes, onSaved, onCleared, onClose }: 
           {routes.routes.length === 0 && (
             <p className="muted day-panel-note">ルートが無いので、出勤は選べません。「ルート」の画面で登録してください。</p>
           )}
-          <button
-            type="button"
-            className="day-choice is-unentered"
-            aria-pressed={selected.kind === "unentered"}
-            disabled={saving}
-            onClick={() => void choose({ kind: "unentered" })}
-          >
-            未入力に戻す
-          </button>
+          {draft ? (
+            draft.workStyle && (
+              <button type="button" className="day-choice is-unentered" onClick={() => draft.onChange(null)}>
+                この日の当てはめを外す
+              </button>
+            )
+          ) : (
+            <button
+              type="button"
+              className="day-choice is-unentered"
+              aria-pressed={selected.kind === "unentered"}
+              disabled={saving}
+              onClick={() => void choose({ kind: "unentered" })}
+            >
+              未入力に戻す
+            </button>
+          )}
         </div>
       )}
 
