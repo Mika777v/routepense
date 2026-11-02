@@ -2,8 +2,10 @@
 
 export type { ApiError, FieldError } from "./api";
 export type { BulkInput } from "./bulk";
+export { bulkTargetDates } from "./bulk";
 export type { DailyRecord } from "./daily-record";
 export type { DateString, Weekday } from "./date";
+export { nextDate, weekdayOf } from "./date";
 export type { ExtraTrip, TripType } from "./extra-trip";
 export { assertNever, dailyFare, extraTripFare, workStyleFare } from "./fare";
 export type { Route, RouteInput, RouteSnapshot, Transport } from "./route";
