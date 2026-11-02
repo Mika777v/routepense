@@ -2,6 +2,7 @@ import type { Route } from "@routepense/shared";
 import { useEffect, useState } from "react";
 import { RouteForm } from "./RouteForm";
 import { RouteTicket } from "./RouteTicket";
+import { getRouteSearchStatus } from "./route-search-api";
 import { deleteRoute, listRoutes } from "./routes-api";
 
 /** 一覧の読み込みの状態（判別可能なユニオン型。読み込み中・成功・失敗のどれか1つ） */
@@ -12,6 +13,8 @@ export function RoutesPage() {
   const [list, setList] = useState<ListState>({ kind: "loading" });
   const [editing, setEditing] = useState<Route | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  /** 経路検索が使えるか。聞き終わるまでと、聞けなかったときは false（ボタンを出さない） */
+  const [routeSearchAvailable, setRouteSearchAvailable] = useState(false);
 
   async function reload() {
     const result = await listRoutes();
@@ -24,6 +27,11 @@ export function RoutesPage() {
     listRoutes().then((result) => {
       if (!active) return;
       setList(result.ok ? { kind: "ok", routes: result.value } : { kind: "error", message: result.error.error });
+    });
+    // 経路検索が使えるか（API のキーがあるか）も1回だけ聞く
+    getRouteSearchStatus().then((result) => {
+      if (!active) return;
+      setRouteSearchAvailable(result.ok && result.value.available);
     });
     return () => {
       active = false;
@@ -59,6 +67,7 @@ export function RoutesPage() {
         <RouteForm
           key={editing?.id ?? "new"}
           editing={editing}
+          routeSearchAvailable={routeSearchAvailable}
           onSaved={handleSaved}
           onCancel={() => setEditing(null)}
         />

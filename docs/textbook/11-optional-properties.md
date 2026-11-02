@@ -123,6 +123,14 @@ days.push({
 
 `Route` の `searchUrl?` は任意です。SQLite には「項目が無い」という考え方が無いので、URL の無いルートは列の値を `NULL` にして持ちます。読み出すときに `NULL` なら項目を付けず、書き込むときは `input.searchUrl ?? null` で `undefined` を `NULL` に変えます。こうすると、API の JSON に `"searchUrl": null` が出ず、URL の列を足す前に登録したルートも、今までと同じ形で読めます。
 
+画面の側（`frontend/src/routes/route-form.ts` の `toRouteInput`）も同じ書き方です。入力欄は空の文字列 `""` しか持てないので、空なら `searchUrl` のキーごと付けずに送ります。
+
+```ts
+...(searchUrl !== "" && { searchUrl }),
+```
+
+`false` を `...` で広げても何も足されないので、条件が成り立つときだけプロパティが付きます。
+
 ## よくある間違いと、型エラーの読み方
 
 ### 1. 確かめずに読む（型エラーになる例）
