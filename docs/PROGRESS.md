@@ -17,18 +17,18 @@
 | 3 | ルートの登録 API と画面 | 完了 | [#11](https://github.com/Mika777v/routepense/issues/11) | [#6](https://github.com/Mika777v/routepense/pull/6)・[#7](https://github.com/Mika777v/routepense/pull/7)・[#8](https://github.com/Mika777v/routepense/pull/8)・[#9](https://github.com/Mika777v/routepense/pull/9)・[#30](https://github.com/Mika777v/routepense/pull/30) |
 | 4 | 日次記録と一括設定のロジック | 完了 | [#12](https://github.com/Mika777v/routepense/issues/12) | [#32](https://github.com/Mika777v/routepense/pull/32)・[#33](https://github.com/Mika777v/routepense/pull/33)・[#34](https://github.com/Mika777v/routepense/pull/34)・[#35](https://github.com/Mika777v/routepense/pull/35)・[#36](https://github.com/Mika777v/routepense/pull/36) |
 | 5 | カレンダー入力と一括設定の画面 | 完了 | [#13](https://github.com/Mika777v/routepense/issues/13) | [#38](https://github.com/Mika777v/routepense/pull/38)・[#39](https://github.com/Mika777v/routepense/pull/39)・[#40](https://github.com/Mika777v/routepense/pull/40)・[#41](https://github.com/Mika777v/routepense/pull/41) |
-| 6 | 月ごとの一覧と合計 | **次** | [#14](https://github.com/Mika777v/routepense/issues/14) | |
-| — | MVP の後（経路検索 U1・祝日 U9） | 未着手 | [#15](https://github.com/Mika777v/routepense/issues/15) | |
+| 6 | 月ごとの一覧と合計 | 完了 | [#14](https://github.com/Mika777v/routepense/issues/14) | [#43](https://github.com/Mika777v/routepense/pull/43)・[#44](https://github.com/Mika777v/routepense/pull/44) |
+| — | MVP の後（経路検索 U1・祝日 U9） | **次** | [#15](https://github.com/Mika777v/routepense/issues/15) | |
 
 ## 次にやること
 
-1. **新しいセッションで Epic [#14](https://github.com/Mika777v/routepense/issues/14)（ステップ6）を始める。** Task は [#25](https://github.com/Mika777v/routepense/issues/25)（表表示とカレンダー表示の切り替え・追加の移動の内訳）と [#26](https://github.com/Mika777v/routepense/issues/26)（月の交通費の合計）。#26 は小さく、#25 と触る場所が近いので、#26 → #25 の順が進めやすい
-2. 月次画面の作り（ステップ5で作った。`frontend/src/calendar/`）:
-   - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）を持つ。表表示もこの記録の一覧を使えば、カレンダーと食い違わない
-   - 記録 → 週の配列は `month.ts` の `buildCalendar`、1日の交通費は `shared` の `dailyFare`。未入力の日の数は `countUnentered`（画面の上に出している）
-   - 日の編集パネル `DayPanel.tsx`（勤務区分はすぐ保存。当てはめ中は保存せずに当てはめを直す）、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`
+1. **MVP（ステップ1〜6）はできた。** 次は Epic [#15](https://github.com/Mika777v/routepense/issues/15)（MVP の後: 経路検索 U1・祝日 U9）。始める前に、どれから手を付けるかをオーナーと決め、Task を作る（要件の追加になるものは `needs-confirm`）
+2. 月次画面の作り（`frontend/src/calendar/`）:
+   - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
+   - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
+   - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
-3. 教科書は第11章まで。次の章は、ステップ6で使う概念（例: `reduce` での集計、表の作り）から選ぶ
+3. 教科書は第13章まで。次の章は、MVP の後の作業で使う概念から選ぶ
 4. `npm install` で `moderate severity vulnerabilities` と出る。`npm audit fix --force` はメジャー更新を含むので使わない。直すなら原因を調べる Task を作り、オーナーに確認する
 
 ## 会話で決めたこと（ほかの文書に無いもの）
@@ -52,4 +52,9 @@
   - 上書きの確認は、ブラウザの confirm ではなく画面の中の帯に出す（追加の移動がある日の一覧を見せるため）
   - 曜日のボタンは、要件の「平日」「毎日」に「土日」「外す」を足した
 - **追加の移動のフォーム**（ステップ5）: 新しく足すときは「往復」を選んでおく。ルートから選ぶと区間・交通手段・運賃をコピーし、片道 / 往復と目的は入力中の値を残す
+- **コードの整形**（ステップ6）: Prettier は入れていない（設定ファイルも無い）。コードは幅120くらいで手で整えている。`npx prettier` を既定の幅（80）で掛けると関係のない行まで折り返すので使わない（#43 で起き、#44 で戻した）
+- **月の合計と表表示**（ステップ6）:
+  - 合計は1日の交通費（`dailyFare`）の和、追加の移動は合計 − 通常の交通費。各日の金額・内訳の和が、必ず合計と合う
+  - 合計はカレンダーの上に出し、当てはめ中は未登録の内容を含むことを添える。未入力の日があれば「合計はまだ確定していません」と赤で出す
+  - 表の未入力の日の金額は「—」（0 円と見分ける）。表の日付を押すと、カレンダーと同じ日の編集パネルが開く
 - **claude.ai のアカウントのスキル**: 文書作成（docx・pdf・pptx・xlsx）・`skill-creator` はアカウントで有効なので、どのセッションでも使える。リポジトリには入れない
