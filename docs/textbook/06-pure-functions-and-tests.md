@@ -92,12 +92,13 @@ Java でいえば、`java.util.Date` ではなく `LocalDate`（タイムゾー�
 
 ```ts
 export function bulkTargetDates(
-  input: Pick<BulkInput, "startDate" | "endDate" | "weekdays">,
+  input: Pick<BulkInput, "startDate" | "endDate" | "weekdays" | "skipHolidays">,
 ): DateString[] {
   const result: DateString[] = [];
   // YYYY-MM-DD は桁数がそろっているので、文字列のまま大小を比べられる
   for (let date = input.startDate; date <= input.endDate; date = nextDate(date)) {
-    if (input.weekdays.includes(weekdayOf(date))) {
+    const skipped = input.skipHolidays && holidayName(date) !== undefined;
+    if (input.weekdays.includes(weekdayOf(date)) && !skipped) {
       result.push(date);
     }
   }
@@ -105,7 +106,8 @@ export function bulkTargetDates(
 }
 ```
 
-- 引数は `BulkInput` のうち、使う3つだけ（`Pick` は、型からプロパティを選び出して新しい型を作る）。勤務区分を渡さなくても呼べるので、テストが短くなります
+- `skipHolidays`（祝日を除くか）は MVP の後に足しました（要件定義 F3）。祝日の一覧は `holidayName`（第14章）で引きます。一覧は関数の外にある定数ですが、書き換わらない（`ReadonlyMap`）ので、同じ入力なら同じ結果になり、純粋関数のままです
+- 引数は `BulkInput` のうち、使う4つだけ（`Pick` は、型からプロパティを選び出して新しい型を作る）。勤務区分を渡さなくても呼べるので、テストが短くなります
 - `result` は関数の中で作った配列なので、`push` しても外の状態は変わりません。外から見れば純粋関数です
 - 入力が正しいか（日付が実在する・同じ月の中・曜日が1つ以上）は、ここでは確かめません。第4章のとおり、**API の受け口**で確かめます
 

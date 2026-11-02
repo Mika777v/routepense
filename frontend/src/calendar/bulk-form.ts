@@ -47,7 +47,8 @@ export function toggleWeekday(weekdays: readonly Weekday[], weekday: Weekday): W
 export function toBulkPreviewRequest(values: BulkFormValues): BulkPreviewRequest {
   const workStyle: WorkStyleInput =
     values.kind === "commute" ? { kind: "commute", routeId: values.routeId } : { kind: values.kind };
-  return { startDate: values.startDate, endDate: values.endDate, weekdays: values.weekdays, workStyle };
+  // 祝日を除くかのチェックは #49 で置く。それまでは、要件定義 F3 の最初の値（除く）を送る
+  return { startDate: values.startDate, endDate: values.endDate, weekdays: values.weekdays, skipHolidays: true, workStyle };
 }
 
 /** API の項目の名前を、欄の名前に変える（"workStyle.routeId" も勤務区分の欄に出す） */

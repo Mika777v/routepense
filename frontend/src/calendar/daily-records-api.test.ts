@@ -44,7 +44,7 @@ describe("daily-records-api: 一括設定", () => {
   it("下見と登録は POST で本文を JSON にして送る", async () => {
     const fake = vi.fn(async () => new Response(JSON.stringify({ records: [], overwrittenDates: [], datesWithExtraTrips: [] }), { status: 200 }));
     vi.stubGlobal("fetch", fake);
-    const input = { startDate: "2026-11-01", endDate: "2026-11-30", weekdays: [1, 2, 3, 4, 5] as const, workStyle: { kind: "holiday" } as const };
+    const input = { startDate: "2026-11-01", endDate: "2026-11-30", weekdays: [1, 2, 3, 4, 5] as const, skipHolidays: true, workStyle: { kind: "holiday" } as const };
     expect((await previewBulk({ ...input, weekdays: [...input.weekdays] })).ok).toBe(true);
     expect(fake).toHaveBeenLastCalledWith("/api/daily-records/bulk/preview", expect.objectContaining({ method: "POST" }));
 

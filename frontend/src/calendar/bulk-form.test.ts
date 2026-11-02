@@ -38,6 +38,10 @@ describe("toBulkPreviewRequest", () => {
   it("在宅・休日はルートを送らない", () => {
     expect(toBulkPreviewRequest({ ...base, kind: "holiday" }).workStyle).toEqual({ kind: "holiday" });
   });
+
+  it("祝日は除く（チェックを置くまでは、要件定義 F3 の最初の値）", () => {
+    expect(toBulkPreviewRequest(base).skipHolidays).toBe(true);
+  });
 });
 
 describe("toBulkFormErrors", () => {
