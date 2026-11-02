@@ -136,6 +136,33 @@ export function workStyleFare(workStyle: WorkStyle): number {
 
 `WorkStyle["kind"]` は**インデックスアクセス型**（型の中のプロパティの型を取り出す書き方）です。`WorkStyle` に種類を足すと、`WorkStyleKind` も自動で増えます。
 
+### DB の平らな列と行き来する（`backend/src/daily-records/sqlite-daily-record-repository.ts`）
+
+SQLite のテーブルには「形によって列が変わる」仕組みがありません。そこで `daily_records` テーブルは、勤務区分の種類を `work_kind` の列に、出勤のときだけ使うルートの値を `route_id`・`route_name` などの列に持ち、出勤でなければそれらを `NULL` にしています。
+
+読み出すときは、`work_kind` で `switch` して、ユニオン型の形に組み立て直します。
+
+```ts
+function toWorkStyle(row: DailyRecordRow): WorkStyle {
+  switch (row.work_kind) {
+    case "remote":
+      return { kind: "remote" };
+    case "holiday":
+      return { kind: "holiday" };
+    case "commute": {
+      // route_* の列が null なら例外にする（DB が壊れている）
+      // ...
+      return { kind: "commute", routeId: route_id, route: { /* ... */ } };
+    }
+    default:
+      return assertNever(row.work_kind);
+  }
+}
+```
+
+- 行の型（`DailyRecordRow`）では、ルートの列は `string | null` です。`null` でないことを `if` で確かめると、その後ろでは `string` に絞り込まれます（ナローイング）
+- 勤務区分を増やすと、ここでも `assertNever` が型エラーで教えてくれます。保存の側と読み出しの側の両方で、書き忘れに気づけます
+
 ## よくある間違いと、型エラーの読み方
 
 以下のエラーは、どれも実際に `tsc` で出したものです（コードはわざと間違えています）。
