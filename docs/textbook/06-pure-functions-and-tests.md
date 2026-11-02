@@ -2,7 +2,7 @@
 
 ## この章で学ぶこと
 
-1. 純粋関数とは何か、なぜロジックを純粋関数にするのか
+1. 純粋関数とは何か、なぜロジックを純粋関数にするのか（引数を書き換えない書き方を含む）
 2. Vitest で純粋関数のテストを書く方法（境界の値を選ぶ）
 3. 日付を文字列で扱い、タイムゾーンのずれを避ける方法
 
@@ -140,6 +140,34 @@ Issue の完了条件にあった境界の値を、1つずつテストにして�
 | うるう年の2月 | 2/29 まで数える |
 | 開始日と終了日が同じ日 | 1日だけ、または0日 |
 | `nextDate("2026-12-31")` | 年をまたいで `"2027-01-01"` になる |
+
+### 上書きの組み立て（`shared/src/bulk-apply.ts`）
+
+対象日が決まったら、既存の記録に勤務区分を重ねます。上書きするのは勤務区分だけで、追加の移動は残します（要件定義 F3）。
+
+```ts
+for (const date of [...targetDates].sort()) {
+  const current = byDate.get(date);
+  if (current === undefined) {
+    records.push({ date, workStyle, extraTrips: [] });
+    continue;
+  }
+  overwrittenDates.push(date);
+  // ...
+  records.push({ date, workStyle, extraTrips: [...current.extraTrips] });
+}
+```
+
+- `[...targetDates].sort()` は、コピーしてから並べ替えています。`sort()` は配列そのものを書き換えるので、`targetDates.sort()` と書くと、**呼んだ側の配列まで並び順が変わります**（副作用）
+- 追加の移動も `[...current.extraTrips]` でコピーしています。返した記録に移動を足しても、元の記録には響きません
+- 引数の型を `readonly DateString[]` にしておくと、関数の中で `targetDates.sort()` と書いた時点で型エラーになります（`Property 'sort' does not exist on type 'readonly string[]'`）。「書き換えない」ことを型で約束できます
+
+2つの関数は、次のように組み合わせて使います。どちらも純粋関数なので、DB が無くてもテストできます。
+
+```ts
+const result = applyBulk(bulkTargetDates(input), input.workStyle, recordsOfMonth);
+// result.overwrittenDates.length が「◯日分を上書きします」の ◯
+```
 
 ## よくある間違いと、型エラーの読み方
 
