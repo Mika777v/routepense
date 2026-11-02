@@ -20,14 +20,17 @@
 | 6 | 月ごとの一覧と合計 | 完了 | [#14](https://github.com/Mika777v/routepense/issues/14) | [#43](https://github.com/Mika777v/routepense/pull/43)・[#44](https://github.com/Mika777v/routepense/pull/44) |
 | — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
 | — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
+| — | 依存ライブラリの手入れ（E08） | 進行中（確認待ち） | [#67](https://github.com/Mika777v/routepense/issues/67) | — |
 
 ## 次にやること
 
-1. **MVP と、MVP の後の U1・U9 は終わった**（Epic #15 を閉じた）。開いている Issue は無い。要件定義の未決事項（§7）もすべて決まっている。次の作業はオーナーと決める。候補:
+1. **Epic #67（E08 依存ライブラリの手入れ）を進めている。** Task #68 で `npm audit` の原因を調べ、`docs/npm-audit.md` にまとめた。元は `minimatch@10.2.6` の1件（lint のときだけ使う）
+   - **オーナーに確認中**: 直し方を A（上流の更新を待つ・おすすめ）/ B（`overrides` で `minimatch` を 11 に上げる。依存のメジャー更新）/ C（受け入れる）から選ぶ
+   - #68 は調査の文書のマージで閉じた。A か C なら Epic #67 を閉じる（A は `docs/npm-audit.md`「次に見直すとき」を時々見る）。B なら Task を作って PR にし、マージ前にオーナーに確認する
+   ほかの候補:
    - 駅すぱあとのキーが届いたら、本物の API で経路検索を試す（`backend/.env` に `EKISPERT_API_KEY`。README「経路検索（駅すぱあと API）のキー」）。localhost から使うには `info@val.co.jp` への連絡が要る（無いと 403）
-     - キーの状況: **オーナーに確認中**（申し込み済みか・登録したドメイン・localhost の連絡）
+     - キーの状況: **まだ届いていない**（2026-11-02 にオーナーが回答）。届いたら、登録したドメインと localhost の連絡を確かめる
      - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。キーが届いたら、保存した URL が後日も開けるかを確かめる
-   - `npm audit` の `moderate severity vulnerabilities` の原因を調べる（下の4）
    - 祝日の 2028年分: 一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
 2. 月次画面の作り（`frontend/src/calendar/`）:
    - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
@@ -35,7 +38,7 @@
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
 3. 教科書は第16章（Promise と async / await）まで。次の章は、次の機能の作業で使う概念から選ぶ
-4. `npm install` で `moderate severity vulnerabilities` と出る。`npm audit fix --force` はメジャー更新を含むので使わない。直すなら原因を調べる Task を作り、オーナーに確認する
+4. `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。`npm audit fix --force` は古い版に戻すだけなので使わない
 
 ## 会話で決めたこと（ほかの文書に無いもの）
 
