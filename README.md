@@ -34,7 +34,7 @@ npm run dev
 
 ルートの登録で、駅名から経路結果のページを開く機能（要件 U1・[ADR-0002](docs/adr/0002-route-search.md)）は、駅すぱあと API フリープランのアクセスキーがあるときだけ使えます。キーが無くても、ほかの機能はそのまま動きます。
 
-1. キーを申し込む: <https://api-info.ekispert.com/form/free/>（キーはメールで届きます）
+1. キーを申し込む: <https://api-info.ekispert.com/form/free/>（キーはメールで届きます。フォームの書き方と localhost の連絡文は [docs/ekispert-setup.md](docs/ekispert-setup.md)）
 2. `backend/.env` を作り、キーを書く（`.env` は `.gitignore` 済みです。キーはリポジトリにもフロントにも置きません）
 
 ```bash
