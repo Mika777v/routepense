@@ -1,0 +1,28 @@
+name: Epic
+description: 複数の Task をまとめる大きな単位（CLAUDE.md「進め方」の1ステップなど）。子は sub-issue で結び付ける
+title: "[Epic] "
+labels: ["type:epic"]
+body:
+  - type: input
+    id: epic_id
+    attributes:
+      label: Epic ID
+      placeholder: E08
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: ゴール
+      description: 終わったときに何ができるようになっているか。要件定義の機能番号（F1 など）も書く
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: スコープ / 対象外
+  - type: textarea
+    id: refs
+    attributes:
+      label: 参考
+      placeholder: docs/requirements.md §3
