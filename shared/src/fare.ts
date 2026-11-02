@@ -39,13 +39,8 @@ export function extraTripFare(trip: ExtraTrip): number {
 }
 
 /** その日の交通費 = 勤務区分の交通費 + 追加の移動の合計 */
-export function dailyFare(
-  record: Pick<DailyRecord, "workStyle" | "extraTrips">,
-): number {
-  const extra = record.extraTrips.reduce(
-    (sum, trip) => sum + extraTripFare(trip),
-    0,
-  );
+export function dailyFare(record: Pick<DailyRecord, "workStyle" | "extraTrips">): number {
+  const extra = record.extraTrips.reduce((sum, trip) => sum + extraTripFare(trip), 0);
   return workStyleFare(record.workStyle) + extra;
 }
 
@@ -64,9 +59,7 @@ export type MonthlyFare = {
  * 合計は1日の交通費（dailyFare）を足したものにし、カレンダーの各日の金額と必ず合うようにする。
  * 内訳の通常の交通費は workStyleFare を足し、追加の移動は合計との差にする。
  */
-export function monthlyFare(
-  records: readonly Pick<DailyRecord, "workStyle" | "extraTrips">[],
-): MonthlyFare {
+export function monthlyFare(records: readonly Pick<DailyRecord, "workStyle" | "extraTrips">[]): MonthlyFare {
   // reduce は配列を1つの値にまとめる。第2引数が最初の値（ここでは 0 円の合計）
   const sums = records.reduce(
     (acc, record) => ({

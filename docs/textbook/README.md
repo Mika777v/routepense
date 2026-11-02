@@ -17,10 +17,11 @@
 | 10 | [10-satisfies.md](10-satisfies.md) | satisfies（型を確かめつつ、値の型を残す） | ステップ5 一括設定ダイアログ |
 | 11 | [11-optional-properties.md](11-optional-properties.md) | 任意のプロパティ（`?` と undefined） | ステップ5 追加の移動のフォーム |
 | 12 | [12-reduce.md](12-reduce.md) | 配列を1つの値にまとめる（reduce） | ステップ6 月の交通費の合計 |
+| 13 | [13-type-predicates.md](13-type-predicates.md) | 型の述語（filter で null を除く） | ステップ6 表表示 |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- （次の章は、ステップ6の表表示（#25）と一緒に決める）
+- （次の章は、MVP の後の作業と一緒に決める）
 
 ## そのほかのファイル
 

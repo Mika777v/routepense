@@ -1,9 +1,4 @@
-import {
-  monthlyFare,
-  type BulkApplyResult,
-  type DailyRecord,
-  type DateString,
-} from "@routepense/shared";
+import { monthlyFare, type BulkApplyResult, type DailyRecord, type DateString } from "@routepense/shared";
 import { useEffect, useState } from "react";
 import { listRoutes } from "../routes/routes-api";
 import { listDailyRecords, saveBulk } from "./daily-records-api";
@@ -21,17 +16,17 @@ import {
 } from "./draft";
 import { DraftBar } from "./DraftBar";
 import { MonthCalendar } from "./MonthCalendar";
+import { MonthTable } from "./MonthTable";
 import { MonthTotal } from "./MonthTotal";
-import {
-  buildCalendar,
-  countUnentered,
-  currentMonth,
-  monthLabel,
-  shiftMonth,
-  type MonthString,
-} from "./month";
+import { buildTableRows } from "./month-table";
+import { buildCalendar, countUnentered, currentMonth, monthLabel, shiftMonth, type MonthString } from "./month";
 
 /** 記録の読み込みの状態。どの月の結果かも持ち、月を切り替えた直後に前の月の記録を出さないようにする */
+/** 月の記録の見せ方: カレンダー / 表 */
+type ViewMode = "calendar" | "table";
+
+const VIEW_LABELS: Record<ViewMode, string> = { calendar: "カレンダー", table: "表" };
+
 type LoadState =
   | { kind: "loading"; month: MonthString }
   | { kind: "ok"; month: MonthString; records: DailyRecord[] }
@@ -54,6 +49,8 @@ export function CalendarPage() {
   const [savingDraft, setSavingDraft] = useState(false);
   const [draftError, setDraftError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // 見せ方だけを切り替える。記録の一覧は同じものを使うので、切り替えても内容は食い違わない
+  const [view, setView] = useState<ViewMode>("calendar");
 
   useEffect(() => {
     // 月が変わるたびに読み直す。読み終わる前に月を切り替えたら、古い月の結果は捨てる
@@ -76,11 +73,7 @@ export function CalendarPage() {
     let active = true;
     listRoutes().then((result) => {
       if (!active) return;
-      setRoutes(
-        result.ok
-          ? { kind: "ok", routes: result.value }
-          : { kind: "error", message: result.error.error },
-      );
+      setRoutes(result.ok ? { kind: "ok", routes: result.value } : { kind: "error", message: result.error.error });
     });
     return () => {
       active = false;
@@ -95,9 +88,7 @@ export function CalendarPage() {
 
   /** 表示中の月の記録の一覧を、関数で書き換える（保存・未入力に戻したとき） */
   function updateRecords(update: (records: DailyRecord[]) => DailyRecord[]) {
-    setLoad((prev) =>
-      prev.kind === "ok" ? { ...prev, records: update(prev.records) } : prev,
-    );
+    setLoad((prev) => (prev.kind === "ok" ? { ...prev, records: update(prev.records) } : prev));
   }
 
   function applyBulk(result: BulkApplyResult) {
@@ -105,9 +96,7 @@ export function CalendarPage() {
     setDraft((prev) => mergeDraft(prev, result.records));
     setConfirming(null);
     setDraftError(null);
-    setNotice(
-      `${result.records.length}日に当てはめました。まだ保存していません`,
-    );
+    setNotice(`${result.records.length}日に当てはめました。まだ保存していません`);
   }
 
   function discardDraft() {
@@ -133,20 +122,15 @@ export function CalendarPage() {
   }
 
   // 読み込み中（または前の月の結果しか無いとき）は、記録の無いカレンダーを出さずに待つ
-  const current =
-    load.month === month ? load : { kind: "loading" as const, month };
+  const current = load.month === month ? load : { kind: "loading" as const, month };
   const saved = current.kind === "ok" ? current.records : [];
   const hasDraft = draft.size > 0;
-  // カレンダーと合計は、同じ記録の一覧（保存済み＋当てはめ中）から作り、金額が食い違わないようにする
+  // カレンダー・表・合計は、同じ記録の一覧（保存済み＋当てはめ中）から作り、金額が食い違わないようにする
   const shown = overlayDraft(saved, draft);
-  const weeks =
-    current.kind === "ok"
-      ? buildCalendar(month, shown, new Set(draft.keys()))
-      : null;
+  const weeks = current.kind === "ok" ? buildCalendar(month, shown, new Set(draft.keys())) : null;
   const unentered = weeks ? countUnentered(weeks) : null;
-  const selectedRecord = selectedDate
-    ? saved.find((r) => r.date === selectedDate)
-    : undefined;
+  const fare = monthlyFare(shown);
+  const selectedRecord = selectedDate ? saved.find((r) => r.date === selectedDate) : undefined;
 
   function handleSave() {
     const summary = summarizeDraft(draft, saved);
@@ -209,12 +193,17 @@ export function CalendarPage() {
       )}
       {weeks && (
         <>
-          <MonthTotal
-            fare={monthlyFare(shown)}
-            unentered={unentered ?? 0}
-            hasDraft={hasDraft}
-          />
-          <p className="calendar-summary">日を押すと、勤務区分を選べます</p>
+          <MonthTotal fare={fare} unentered={unentered ?? 0} hasDraft={hasDraft} />
+          <div className="calendar-summary">
+            <div className="view-switch" role="group" aria-label="表示の切り替え">
+              {(Object.keys(VIEW_LABELS) as ViewMode[]).map((mode) => (
+                <button key={mode} type="button" aria-pressed={view === mode} onClick={() => setView(mode)}>
+                  {VIEW_LABELS[mode]}
+                </button>
+              ))}
+            </div>
+            <span>日を押すと、勤務区分を選べます</span>
+          </div>
           {hasDraft && (
             <DraftBar
               count={draft.size}
@@ -227,18 +216,24 @@ export function CalendarPage() {
               onDiscard={discardDraft}
             />
           )}
-          <div
-            className={
-              selectedDate ? "calendar-body has-panel" : "calendar-body"
-            }
-          >
+          <div className={selectedDate ? "calendar-body has-panel" : "calendar-body"}>
             <div className="calendar-scroll">
-              <MonthCalendar
-                weeks={weeks}
-                caption={monthLabel(month)}
-                selectedDate={selectedDate}
-                onSelect={setSelectedDate}
-              />
+              {view === "calendar" ? (
+                <MonthCalendar
+                  weeks={weeks}
+                  caption={monthLabel(month)}
+                  selectedDate={selectedDate}
+                  onSelect={setSelectedDate}
+                />
+              ) : (
+                <MonthTable
+                  rows={buildTableRows(weeks)}
+                  caption={monthLabel(month)}
+                  fare={fare}
+                  selectedDate={selectedDate}
+                  onSelect={setSelectedDate}
+                />
+              )}
             </div>
             {selectedDate && (
               // key を日付にすると、別の日を開いたときにパネルの state（エラーの文など）が作り直される
@@ -247,12 +242,8 @@ export function CalendarPage() {
                 date={selectedDate}
                 record={selectedRecord}
                 routes={routes}
-                onSaved={(record) =>
-                  updateRecords((records) => upsertRecord(records, record))
-                }
-                onCleared={(date) =>
-                  updateRecords((records) => removeRecord(records, date))
-                }
+                onSaved={(record) => updateRecords((records) => upsertRecord(records, record))}
+                onCleared={(date) => updateRecords((records) => removeRecord(records, date))}
                 onClose={() => setSelectedDate(null)}
                 draft={
                   hasDraft
@@ -260,12 +251,8 @@ export function CalendarPage() {
                         workStyle: draft.get(selectedDate),
                         onChange: (choice) => {
                           const workStyle =
-                            choice && routes.kind === "ok"
-                              ? toDraftWorkStyle(choice, routes.routes)
-                              : undefined;
-                          setDraft((prev) =>
-                            setDraftDay(prev, selectedDate, workStyle ?? null),
-                          );
+                            choice && routes.kind === "ok" ? toDraftWorkStyle(choice, routes.routes) : undefined;
+                          setDraft((prev) => setDraftDay(prev, selectedDate, workStyle ?? null));
                           // 直したら、確認の内容は作り直す
                           setConfirming(null);
                         },
@@ -278,12 +265,7 @@ export function CalendarPage() {
         </>
       )}
       {bulkOpen && routes.kind === "ok" && (
-        <BulkDialog
-          month={month}
-          routes={routes.routes}
-          onApply={applyBulk}
-          onClose={() => setBulkOpen(false)}
-        />
+        <BulkDialog month={month} routes={routes.routes} onApply={applyBulk} onClose={() => setBulkOpen(false)} />
       )}
     </section>
   );
