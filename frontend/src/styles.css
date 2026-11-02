@@ -66,7 +66,7 @@ p {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 1rem;
-  max-width: 64rem;
+  max-width: 72rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 1rem;
 }
@@ -83,7 +83,7 @@ p {
 }
 
 .app-main {
-  max-width: 64rem;
+  max-width: 72rem;
   margin: 0 auto;
   padding: 0 1rem 3rem;
 }
@@ -510,8 +510,7 @@ button.danger:hover:not(:disabled) {
 }
 
 .cal-day {
-  height: 5.5rem;
-  padding: 0.375rem 0.5rem;
+  padding: 0;
   vertical-align: top;
   border: 1px solid rgb(31 42 68 / 0.12);
   border-radius: var(--radius-control);
@@ -519,8 +518,31 @@ button.danger:hover:not(:disabled) {
   line-height: 1.4;
 }
 
-.cal-day > span {
+/* マス全体を1つのボタンにする。押せる範囲を広く取り、キーボードでも順に移れる */
+.cal-button {
   display: block;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cal-button:hover:not(:disabled) {
+  background: rgb(31 42 68 / 0.05);
+}
+
+.cal-button > span {
+  display: block;
+}
+
+.cal-day:has(.cal-button[aria-pressed="true"]) {
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 .cal-date {
@@ -575,6 +597,87 @@ button.danger:hover:not(:disabled) {
 
 .cal-empty {
   border: 0;
+}
+
+/* カレンダーと日の編集パネル。広い画面では横に並べ、狭い画面ではパネルをカレンダーの下に出す */
+.calendar-body.has-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17rem;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .calendar-body.has-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.calendar-hint {
+  margin-left: 1rem;
+}
+
+.day-panel {
+  padding: 1rem;
+  border: 1px solid rgb(31 42 68 / 0.15);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.day-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.day-panel-head h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.day-panel-hint {
+  margin-bottom: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.day-choices {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.day-choice {
+  width: 100%;
+  text-align: left;
+}
+
+.day-choice[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.day-choice.is-unentered {
+  margin-top: 0.5rem;
+  border-style: dashed;
+}
+
+.day-choice.is-unentered[aria-pressed="true"] {
+  border-color: var(--ink-soft);
+  background: var(--ground);
+  color: var(--ink);
+}
+
+.day-panel-status {
+  min-height: 1.5rem;
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.day-panel-note {
+  font-size: 0.8125rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
