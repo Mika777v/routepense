@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { deleteDailyRecord, listDailyRecords, saveDailyRecord } from "./daily-records-api";
+import { deleteDailyRecord, listDailyRecords, previewBulk, saveBulk, saveDailyRecord } from "./daily-records-api";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -37,5 +37,22 @@ describe("daily-records-api: 1日分の保存と削除", () => {
     vi.stubGlobal("fetch", fake);
     expect(await deleteDailyRecord("2026-11-02")).toEqual({ ok: true, value: undefined });
     expect(fake).toHaveBeenCalledWith("/api/daily-records/2026-11-02", expect.objectContaining({ method: "DELETE" }));
+  });
+});
+
+describe("daily-records-api: 一括設定", () => {
+  it("下見と登録は POST で本文を JSON にして送る", async () => {
+    const fake = vi.fn(async () => new Response(JSON.stringify({ records: [], overwrittenDates: [], datesWithExtraTrips: [] }), { status: 200 }));
+    vi.stubGlobal("fetch", fake);
+    const input = { startDate: "2026-11-01", endDate: "2026-11-30", weekdays: [1, 2, 3, 4, 5] as const, workStyle: { kind: "holiday" } as const };
+    expect((await previewBulk({ ...input, weekdays: [...input.weekdays] })).ok).toBe(true);
+    expect(fake).toHaveBeenLastCalledWith("/api/daily-records/bulk/preview", expect.objectContaining({ method: "POST" }));
+
+    const days = { days: [{ date: "2026-11-02", workStyle: { kind: "remote" } as const }] };
+    await saveBulk(days);
+    expect(fake).toHaveBeenLastCalledWith(
+      "/api/daily-records/bulk",
+      expect.objectContaining({ method: "POST", body: JSON.stringify(days) }),
+    );
   });
 });

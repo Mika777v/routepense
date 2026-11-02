@@ -27,6 +27,8 @@ export type CalendarDay = {
   day: number;
   weekday: Weekday;
   status: DayStatus;
+  /** 一括設定で当てはめた、まだ保存していない日か */
+  isDraft: boolean;
 };
 
 /** カレンダーの1週（月曜〜日曜の7マス）。前後の月の日は null（空のマス） */
@@ -88,8 +90,13 @@ export function monthLabel(month: MonthString): string {
 /**
  * 月のカレンダーを、週ごとの配列にして返す（純粋関数）。
  * records はその月の日次記録。記録の無い日は「未入力」になる。
+ * draftDates は、一括設定で当てはめて、まだ保存していない日。
  */
-export function buildCalendar(month: MonthString, records: readonly DailyRecord[]): CalendarWeek[] {
+export function buildCalendar(
+  month: MonthString,
+  records: readonly DailyRecord[],
+  draftDates: ReadonlySet<DateString> = new Set(),
+): CalendarWeek[] {
   // 日付から記録をすぐ引けるよう、Map（キーと値の組の入れ物）にしておく
   const byDate = new Map(records.map((record) => [record.date, record]));
 
@@ -102,6 +109,7 @@ export function buildCalendar(month: MonthString, records: readonly DailyRecord[
       day,
       weekday: weekdayOf(date),
       status: record ? { kind: "recorded", record, fare: dailyFare(record) } : { kind: "unentered" },
+      isDraft: draftDates.has(date),
     });
   }
 

@@ -14,10 +14,11 @@
 | 7 | [07-utility-and-intersection-types.md](07-utility-and-intersection-types.md) | 型から型を作る（Pick・Omit と交差型） | ステップ4 日次記録の API |
 | 8 | [08-react-lists-and-keys.md](08-react-lists-and-keys.md) | 配列から画面を作る（map と key） | ステップ5 月のカレンダー |
 | 9 | [09-react-lifting-state-up.md](09-react-lifting-state-up.md) | state の持ち上げ（親が持ち、子に渡す） | ステップ5 日の編集パネル |
+| 10 | [10-satisfies.md](10-satisfies.md) | satisfies（型を確かめつつ、値の型を残す） | ステップ5 一括設定ダイアログ |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- （次の章は、一括設定のダイアログ（#23）と一緒に決める）
+- （次の章は、追加の移動のフォーム（#24）と一緒に決める）
 
 ## そのほかのファイル
 
