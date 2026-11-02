@@ -13,7 +13,7 @@
 | 型の共有（`shared/`） | フロントとバックで同じ型定義を使うこと | Route, DailyRecord などを `shared/` に置く | [01-tsconfig-and-typecheck.md](01-tsconfig-and-typecheck.md)（`HealthResponse` の例） | Java で共通の jar やモジュールを参照するイメージ |
 | オプショナルなプロパティ | あってもなくてもよい項目（`purpose?: string`） | 追加の移動の目的、元ルートID | 01-typescript-basics | Java の `Optional` や null 許容の項目 |
 | 配列型 | 同じ型の値の並び（`ExtraTrip[]`） | 日次記録の追加の移動 | 01-typescript-basics | Java の `List<ExtraTrip>` |
-| 純粋関数 | 同じ入力なら必ず同じ結果を返し、外の状態を変えない関数 | 一括設定の対象日の計算 | 04-pure-functions-and-tests（予定） | static メソッドで副作用なし、に相当 |
+| 純粋関数 | 同じ入力なら必ず同じ結果を返し、外の状態を変えない関数 | 一括設定の対象日の計算 | 06-pure-functions-and-tests | static メソッドで副作用なし、に相当 |
 | バリデーション | 入力が正しいかを確かめること | API の受け口で日付・運賃・ルートIDを確認 | [04-unknown-and-type-guards.md](04-unknown-and-type-guards.md) | Bean Validation（`@NotNull` など）に相当 |
 | スナップショット | ある時点の値をコピーして保存しておくこと | 記録にルートの運賃・区間をコピーする（`RouteSnapshot`） | データ設計の章（予定） | — |
 | インターフェース・構造的型付け | 名前ではなく形で、型が合うかを決める仕組み | `RouteRepository` と `SqliteRouteRepository` | [03-interface-and-structural-typing.md](03-interface-and-structural-typing.md) | Java は名前（implements）で決まる。TS は形で決まる |
