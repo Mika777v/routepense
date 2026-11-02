@@ -480,6 +480,47 @@ button.danger:hover:not(:disabled) {
   }
 }
 
+/* 月の交通費の合計。カレンダーの上に置き、金額を大きく出す */
+.month-total {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgb(31 42 68 / 0.15);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.month-total p {
+  margin: 0;
+}
+
+.month-total-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.month-total-main strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-total-draft {
+  color: var(--accent);
+  font-size: 0.875rem;
+}
+
+.month-total-breakdown,
+.month-total-status {
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+}
+
+.month-total-status.is-unentered {
+  color: var(--danger);
+}
+
 .calendar-summary {
   margin-bottom: 0.75rem;
   color: var(--ink-soft);
@@ -612,10 +653,6 @@ button.danger:hover:not(:disabled) {
   .calendar-body.has-panel {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-.calendar-hint {
-  margin-left: 1rem;
 }
 
 .day-panel {
