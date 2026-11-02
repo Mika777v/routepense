@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { formatYen } from "../routes/route-form";
 import { deleteDailyRecord, saveDailyRecord } from "./daily-records-api";
+import { ExtraTrips } from "./ExtraTrips";
 import { choiceOf, dayLabel, errorMessage, isSameChoice, toWorkStyleInput, type DayChoice } from "./day-edit";
 
 /** ルートの一覧の読み込みの状態（親の CalendarPage が持つ） */
@@ -19,7 +20,7 @@ type Props = {
   /** その日の記録。無ければ未入力 */
   record: DailyRecord | undefined;
   routes: RoutesState;
-  /** 保存できたとき。親が一覧を新しい記録に置き換える */
+  /** 保存できたとき（勤務区分・追加の移動）。親が一覧を新しい記録に置き換える */
   onSaved: (record: DailyRecord) => void;
   /** 未入力に戻せたとき */
   onCleared: (date: DateString) => void;
@@ -169,10 +170,19 @@ export function DayPanel({ date, record, routes, onSaved, onCleared, onClose, dr
         </p>
       )}
 
-      {record && record.extraTrips.length > 0 && (
-        <p className="muted day-panel-note">
-          追加の移動: {record.extraTrips.length}件（{formatYen(record.extraTrips.reduce((sum, trip) => sum + extraTripFare(trip), 0))}）
-        </p>
+      {draft ? (
+        // 当てはめ中は勤務区分だけを扱う。追加の移動は、登録の後に足す・直す
+        record &&
+        record.extraTrips.length > 0 && (
+          <p className="muted day-panel-note">
+            追加の移動: {record.extraTrips.length}件（
+            {formatYen(record.extraTrips.reduce((sum, trip) => sum + extraTripFare(trip), 0))}）。登録しても残ります
+          </p>
+        )
+      ) : record ? (
+        routes.kind === "ok" && <ExtraTrips record={record} routes={routes.routes} onChange={onSaved} />
+      ) : (
+        <p className="muted day-panel-note">追加の移動は、先に勤務区分を選んでから足せます。</p>
       )}
     </section>
   );
