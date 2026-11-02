@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-ブラウザで http://localhost:5173 を開き、「backend に接続できました」と出れば、画面と API がつながっています。
+ブラウザで http://localhost:5173 を開くと、ルートの管理画面が出ます。ルートを登録して一覧に出れば、画面と API がつながっています。
 
 ## 確認のコマンド
 

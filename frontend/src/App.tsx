@@ -1,35 +1,17 @@
-import type { HealthResponse } from "@routepense/shared";
-import { useEffect, useState } from "react";
+import { RoutesPage } from "./routes/RoutesPage";
+import "./styles.css";
 
-// backend の /api/health を呼び、つながっているかを表示するだけの最初の画面
-type HealthState =
-  | { kind: "loading" }
-  | { kind: "ok"; health: HealthResponse }
-  | { kind: "error"; message: string };
-
+// 今はルートの管理画面だけ。月次画面ができたら、ここで画面を切り替える
 export function App() {
-  const [state, setState] = useState<HealthState>({ kind: "loading" });
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const health = (await res.json()) as HealthResponse;
-        setState({ kind: "ok", health });
-      })
-      .catch((e: unknown) => {
-        setState({ kind: "error", message: e instanceof Error ? e.message : String(e) });
-      });
-  }, []);
-
   return (
-    <main>
-      <h1>routepense</h1>
-      {state.kind === "loading" && <p>backend に接続しています…</p>}
-      {state.kind === "ok" && <p>backend に接続できました（{state.health.time}）</p>}
-      {state.kind === "error" && <p>backend に接続できません: {state.message}</p>}
-    </main>
+    <>
+      <header className="app-header">
+        <p className="app-title">routepense</p>
+        <p className="app-subtitle">通勤ルートと交通費の記録</p>
+      </header>
+      <main className="app-main">
+        <RoutesPage />
+      </main>
+    </>
   );
 }
