@@ -19,23 +19,12 @@ export function MonthTotal({ fare, unentered, hasDraft }: Props) {
       <p className="month-total-main">
         <span id="month-total-heading">月の交通費</span>
         <strong>{formatYen(fare.total)}</strong>
-        {hasDraft && (
-          <span className="month-total-draft">
-            当てはめ中の内容を含む（未登録）
-          </span>
-        )}
+        {hasDraft && <span className="month-total-draft">当てはめ中の内容を含む（未登録）</span>}
       </p>
       <p className="month-total-breakdown">
-        内訳: 通常の交通費 {formatYen(fare.workStyleTotal)} ＋ 追加の移動{" "}
-        {formatYen(fare.extraTotal)}
+        内訳: 通常の交通費 {formatYen(fare.workStyleTotal)} ＋ 追加の移動 {formatYen(fare.extraTotal)}
       </p>
-      <p
-        className={
-          unentered === 0
-            ? "month-total-status"
-            : "month-total-status is-unentered"
-        }
-      >
+      <p className={unentered === 0 ? "month-total-status" : "month-total-status is-unentered"}>
         {unentered === 0
           ? "すべての日に入力があります"
           : `未入力の日が ${unentered}日 あります（合計はまだ確定していません）`}

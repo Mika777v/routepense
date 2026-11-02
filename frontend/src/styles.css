@@ -521,7 +521,12 @@ button.danger:hover:not(:disabled) {
   color: var(--danger);
 }
 
+/* 表示の切り替えと、操作の案内を1行に並べる */
 .calendar-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
   margin-bottom: 0.75rem;
   color: var(--ink-soft);
   font-size: 0.875rem;
@@ -639,6 +644,128 @@ button.danger:hover:not(:disabled) {
 
 .cal-empty {
   border: 0;
+}
+
+/* ---- 表示の切り替え（カレンダー / 表） ---- */
+
+/* 2つのボタンを1つの部品に見せる。押している方を深い緑で塗る */
+.view-switch {
+  display: inline-flex;
+}
+
+.view-switch button {
+  padding: 0.25rem 0.875rem;
+  border-radius: 0;
+}
+
+.view-switch button:first-child {
+  border-radius: var(--radius-control) 0 0 var(--radius-control);
+}
+
+.view-switch button:last-child {
+  margin-left: -1px;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+
+.view-switch button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- 表表示 ---- */
+
+.month-table {
+  width: 100%;
+  min-width: 42rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.month-table th,
+.month-table td {
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid rgb(31 42 68 / 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.month-table thead th {
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.month-table .is-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.month-table tbody th {
+  white-space: nowrap;
+}
+
+/* 日付のボタンは、文字のリンクのように見せる（行の中で目立ちすぎないように） */
+.table-date {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* 行の色はカレンダーのマスに合わせる: 土日は地の灰色、未入力は赤の文字 */
+.month-table tr.is-weekend {
+  background: var(--ground);
+}
+
+.month-table tr.is-unentered .table-kind {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.month-table tr.is-draft {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+
+.month-table tr.is-selected {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+.table-fare {
+  font-weight: 700;
+}
+
+.table-trips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.table-trips li + li {
+  margin-top: 0.25rem;
+}
+
+.table-trips span {
+  display: block;
+}
+
+.table-trip-meta,
+.table-trip-purpose {
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.month-table tfoot th,
+.month-table tfoot td {
+  border-top: 2px solid var(--ink);
+  border-bottom: 0;
+  font-weight: 700;
 }
 
 /* カレンダーと日の編集パネル。広い画面では横に並べ、狭い画面ではパネルをカレンダーの下に出す */
