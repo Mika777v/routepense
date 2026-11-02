@@ -1057,6 +1057,19 @@ button.danger:hover:not(:disabled) {
   margin-top: 0.5rem;
 }
 
+/* 「祝日を除く」のチェック。曜日のボタンとは違い、ふつうのチェックボックスで見せる */
+.field .bulk-holiday {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.75rem 0 0.25rem;
+  font-weight: 400;
+}
+
+.bulk-holiday + .bulk-note {
+  margin-bottom: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
