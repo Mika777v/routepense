@@ -1,18 +1,12 @@
-import type { AddressInfo } from "node:net";
-import type { Server } from "node:http";
 import type { HealthResponse } from "@routepense/shared";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createApp } from "./app";
+import { startTestServer } from "./test-server";
 
 describe("GET /api/health", () => {
-  let server: Server;
-  let baseUrl: string;
+  let server: ReturnType<typeof startTestServer>;
 
   beforeAll(() => {
-    // ポート 0 を渡すと、空いているポートを OS が選ぶ
-    server = createApp().listen(0);
-    const { port } = server.address() as AddressInfo;
-    baseUrl = `http://localhost:${port}`;
+    server = startTestServer();
   });
 
   afterAll(() => {
@@ -20,7 +14,7 @@ describe("GET /api/health", () => {
   });
 
   it("status: ok を返す", async () => {
-    const res = await fetch(`${baseUrl}/api/health`);
+    const res = await fetch(`${server.baseUrl}/api/health`);
     expect(res.status).toBe(200);
 
     const body = (await res.json()) as HealthResponse;

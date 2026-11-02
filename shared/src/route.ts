@@ -1,5 +1,8 @@
-/** 交通手段 */
-export type Transport = "train" | "bus" | "other";
+/** 交通手段の一覧。画面の選択肢と、API のバリデーションの両方で使う */
+export const TRANSPORTS = ["train", "bus", "other"] as const;
+
+/** 交通手段: "train" | "bus" | "other"（TRANSPORTS から作るので、一覧と型がずれない） */
+export type Transport = (typeof TRANSPORTS)[number];
 
 /** 登録しておく出勤ルート（例: 自宅↔本社） */
 export type Route = {
