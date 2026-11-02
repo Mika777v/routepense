@@ -21,14 +21,17 @@
 | — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
 | — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
 | — | 依存ライブラリの手入れ（E08） | 完了（A: 上流を待つ） | [#67](https://github.com/Mika777v/routepense/issues/67)（閉じた） | [#69](https://github.com/Mika777v/routepense/pull/69) |
+| — | 駅すぱあとの本物の API で経路検索を試す（E09） | 進行中（オーナーの申し込み待ち） | [#71](https://github.com/Mika777v/routepense/issues/71) | T1 [#72](https://github.com/Mika777v/routepense/issues/72) の PR |
 
 ## 次にやること
 
-1. **次の作業は未定。** 開いている Epic は無い。次の候補から選ぶ
-   - 駅すぱあとのキーが届いたら、本物の API で経路検索を試す（`backend/.env` に `EKISPERT_API_KEY`。README「経路検索（駅すぱあと API）のキー」）。localhost から使うには `info@val.co.jp` への連絡が要る（無いと 403）
-     - キーの状況: **まだ届いていない**（2026-11-02 にオーナーが回答）。届いたら、登録したドメインと localhost の連絡を確かめる
-     - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。キーが届いたら、保存した URL が後日も開けるかを確かめる
-   - 祝日の 2028年分: 一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
+1. **Epic #71（E09）駅すぱあとの本物の API で経路検索を試す。** 手順と状況は `docs/ekispert-setup.md`
+   - キーの状況: **まだ申し込んでいない**（2026-11-02 にオーナーが回答。前の「まだ届いていない」は誤り）。オーナーが申し込み、キーが届いたら localhost の連絡（`info@val.co.jp`。下書きは `docs/ekispert-setup.md`）をする
+   - T1 #72（申し込みの手順と連絡文）は済み。T2 #73（キーを設定して確かめる）はキーと localhost の許可が揃ってから。T3 #74（保存した URL が後日も開けるか）は T2 の後
+   - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。T3 で確かめる
+   - 作業した環境（クラウド）からは `api-info.ekispert.com` が開けなかった（ネットワークで許可していない）。フォームの欄は確かめられていない
+   - ほかの候補:
+     - 祝日の 2028年分: 一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
 2. 月次画面の作り（`frontend/src/calendar/`）:
    - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
    - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
