@@ -156,6 +156,19 @@ export class SqliteDailyRecordRepository implements DailyRecordRepository {
     return saved;
   }
 
+  saveMany(userId: string, days: { date: DateString; workStyle: WorkStyle }[]): DailyRecord[] {
+    // トランザクション: 全部の日を保存するか、1日も保存しないかのどちらか
+    this.db.exec("BEGIN");
+    try {
+      const saved = days.map((day) => this.saveWorkStyle(userId, day.date, day.workStyle));
+      this.db.exec("COMMIT");
+      return saved.sort((a, b) => a.date.localeCompare(b.date));
+    } catch (e) {
+      this.db.exec("ROLLBACK");
+      throw e;
+    }
+  }
+
   delete(userId: string, date: DateString): boolean {
     // 追加の移動は、外部キーの ON DELETE CASCADE で一緒に消える
     const result = this.db

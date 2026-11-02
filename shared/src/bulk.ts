@@ -1,5 +1,5 @@
 import { nextDate, weekdayOf, type DateString, type Weekday } from "./date";
-import type { WorkStyle } from "./work-style";
+import type { WorkStyle, WorkStyleInput } from "./work-style";
 
 /** 一括設定の入力 */
 export type BulkInput = {
@@ -30,3 +30,14 @@ export function bulkTargetDates(
   }
   return result;
 }
+
+/**
+ * POST /api/daily-records/bulk/preview の本文。
+ * BulkInput と同じだが、出勤は routeId だけを送る（ルートの値はサーバーがコピーする）。
+ */
+export type BulkPreviewRequest = Omit<BulkInput, "workStyle"> & { workStyle: WorkStyleInput };
+
+/** POST /api/daily-records/bulk の本文。カレンダーで直した後の、日ごとの勤務区分 */
+export type BulkSaveRequest = {
+  days: { date: DateString; workStyle: WorkStyleInput }[];
+};

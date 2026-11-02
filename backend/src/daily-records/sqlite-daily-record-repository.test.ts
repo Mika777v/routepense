@@ -170,4 +170,36 @@ describe("SqliteDailyRecordRepository", () => {
     expect(repo.deleteExtraTrip("user-2", "2026-11-02", added.id)).toBe(false);
     expect(repo.get("user-1", "2026-11-02")?.extraTrips).toEqual([added]);
   });
+
+  it("まとめて保存すると、日付の古い順に返り、既存の日の追加の移動は残る", () => {
+    repo.saveWorkStyle("user-1", "2026-11-03", { kind: "remote" });
+    const added = repo.addExtraTrip("user-1", "2026-11-03", trip);
+
+    const saved = repo.saveMany("user-1", [
+      { date: "2026-11-04", workStyle: commute },
+      { date: "2026-11-03", workStyle: commute },
+    ]);
+
+    expect(saved.map((r) => r.date)).toEqual(["2026-11-03", "2026-11-04"]);
+    expect(saved[0]?.workStyle).toEqual(commute);
+    expect(saved[0]?.extraTrips).toEqual([added]);
+    expect(repo.listByMonth("user-1", "2026-11")).toHaveLength(2);
+  });
+
+  it("まとめて保存の途中で失敗したら、どの日も保存しない", () => {
+    // 運賃が負の数なので、2日目の保存がテーブルの CHECK で失敗する
+    const broken: WorkStyle = {
+      kind: "commute",
+      routeId: "route-1",
+      route: { name: "壊れたルート", from: "A駅", to: "B駅", transport: "train", oneWayFare: -1 },
+    };
+
+    expect(() =>
+      repo.saveMany("user-1", [
+        { date: "2026-11-02", workStyle: { kind: "remote" } },
+        { date: "2026-11-03", workStyle: broken },
+      ]),
+    ).toThrow();
+    expect(repo.listByMonth("user-1", "2026-11")).toEqual([]);
+  });
 });

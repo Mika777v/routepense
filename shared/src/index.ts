@@ -1,7 +1,7 @@
 // フロントとバックの両方が使う型と、どちらでも使う純粋関数を置く場所。
 
 export type { ApiError, FieldError } from "./api";
-export type { BulkInput } from "./bulk";
+export type { BulkInput, BulkPreviewRequest, BulkSaveRequest } from "./bulk";
 export { bulkTargetDates } from "./bulk";
 export type { DailyRecord, DailyRecordInput } from "./daily-record";
 export type { DateString, Weekday } from "./date";

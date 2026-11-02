@@ -19,6 +19,12 @@ export interface DailyRecordRepository {
    * 追加の移動は残す。
    */
   saveWorkStyle(userId: string, date: DateString, workStyle: WorkStyle): DailyRecord;
+  /**
+   * 何日分かの勤務区分を、まとめて保存する（一括設定の「登録」）。
+   * 途中で失敗したら、どの日も保存しない。日ごとの動きは saveWorkStyle と同じで、追加の移動は残す。
+   * 保存した記録を日付の古い順に返す。
+   */
+  saveMany(userId: string, days: { date: DateString; workStyle: WorkStyle }[]): DailyRecord[];
   /** その日の記録を消して「未入力」に戻す（追加の移動も消える）。消せたら true */
   delete(userId: string, date: DateString): boolean;
   /** その日の記録に追加の移動を足す。記録が無ければ undefined */
