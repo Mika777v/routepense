@@ -12,3 +12,13 @@ export type WorkStyle =
 
 /** 勤務区分の種類だけを取り出した型: "remote" | "commute" | "holiday" */
 export type WorkStyleKind = WorkStyle["kind"];
+
+/**
+ * 画面から API に送る勤務区分。
+ * 出勤は routeId だけを送り、ルートの値（RouteSnapshot）はサーバーが登録済みのルートからコピーする。
+ * こうすると、画面が古い運賃を送ってきても、保存されるのは登録済みのルートの値になる。
+ */
+export type WorkStyleInput =
+  | { kind: "remote" }
+  | { kind: "commute"; routeId: string }
+  | { kind: "holiday" };

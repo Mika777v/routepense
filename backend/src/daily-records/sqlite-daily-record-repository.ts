@@ -5,12 +5,13 @@ import {
   type DailyRecord,
   type DateString,
   type ExtraTrip,
+  type ExtraTripInput,
   type Transport,
   type TripType,
   type WorkStyle,
   type WorkStyleKind,
 } from "@routepense/shared";
-import type { DailyRecordRepository, ExtraTripInput } from "./daily-record-repository";
+import type { DailyRecordRepository } from "./daily-record-repository";
 
 /** daily_records テーブルの1行 */
 type DailyRecordRow = {
@@ -188,6 +189,47 @@ export class SqliteDailyRecordRepository implements DailyRecordRepository {
         this.now().toISOString(),
       );
     return { id, ...input };
+  }
+
+  updateExtraTrip(
+    userId: string,
+    date: DateString,
+    tripId: string,
+    input: ExtraTripInput,
+  ): ExtraTrip | undefined {
+    // 移動の id だけで探さず、ユーザーと日付の記録に属するものだけを書き換える
+    const result = this.db
+      .prepare(
+        `UPDATE extra_trips
+         SET from_place = ?, to_place = ?, transport = ?, one_way_fare = ?, trip_type = ?,
+             purpose = ?, source_route_id = ?
+         WHERE id = ? AND daily_record_id =
+           (SELECT id FROM daily_records WHERE user_id = ? AND date = ?)`,
+      )
+      .run(
+        input.from,
+        input.to,
+        input.transport,
+        input.oneWayFare,
+        input.tripType,
+        input.purpose ?? null,
+        input.sourceRouteId ?? null,
+        tripId,
+        userId,
+        date,
+      );
+    return result.changes > 0 ? { id: tripId, ...input } : undefined;
+  }
+
+  deleteExtraTrip(userId: string, date: DateString, tripId: string): boolean {
+    const result = this.db
+      .prepare(
+        `DELETE FROM extra_trips
+         WHERE id = ? AND daily_record_id =
+           (SELECT id FROM daily_records WHERE user_id = ? AND date = ?)`,
+      )
+      .run(tripId, userId, date);
+    return result.changes > 0;
   }
 
   /** 記録の行に、それぞれの追加の移動を付ける（記録の数だけ SQL を投げないよう、まとめて読む） */

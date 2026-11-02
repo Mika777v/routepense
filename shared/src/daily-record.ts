@@ -1,6 +1,6 @@
 import type { DateString } from "./date";
 import type { ExtraTrip } from "./extra-trip";
-import type { WorkStyle } from "./work-style";
+import type { WorkStyle, WorkStyleInput } from "./work-style";
 
 /** 1日分の記録。ユーザーごとに1日1件 */
 export type DailyRecord = {
@@ -10,4 +10,9 @@ export type DailyRecord = {
   workStyle: WorkStyle;
   /** 追加の移動（0件以上） */
   extraTrips: ExtraTrip[];
+};
+
+/** PUT /api/daily-records/:date の本文 */
+export type DailyRecordInput = {
+  workStyle: WorkStyleInput;
 };
