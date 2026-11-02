@@ -10,10 +10,11 @@
 | 3 | [03-interface-and-structural-typing.md](03-interface-and-structural-typing.md) | インターフェースと構造的型付け | ステップ3 ルートの保存 |
 | 4 | [04-unknown-and-type-guards.md](04-unknown-and-type-guards.md) | unknown と型ガード（入力の境界でのバリデーション） | ステップ3 ルートの API |
 | 5 | [05-react-controlled-form.md](05-react-controlled-form.md) | React の制御されたフォーム（keyof と Record） | ステップ3 ルートの管理画面 |
+| 6 | [06-pure-functions-and-tests.md](06-pure-functions-and-tests.md) | 純粋関数とテスト（一括設定の対象日の計算） | ステップ4 一括設定のロジック |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- 純粋関数とテスト（一括設定の対象日の計算）
+- （次の章は、ステップ4の残りの作業と一緒に決める）
 
 ## そのほかのファイル
 
