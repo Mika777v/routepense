@@ -19,22 +19,22 @@
 | 5 | カレンダー入力と一括設定の画面 | 完了 | [#13](https://github.com/Mika777v/routepense/issues/13) | [#38](https://github.com/Mika777v/routepense/pull/38)・[#39](https://github.com/Mika777v/routepense/pull/39)・[#40](https://github.com/Mika777v/routepense/pull/40)・[#41](https://github.com/Mika777v/routepense/pull/41) |
 | 6 | 月ごとの一覧と合計 | 完了 | [#14](https://github.com/Mika777v/routepense/issues/14) | [#43](https://github.com/Mika777v/routepense/pull/43)・[#44](https://github.com/Mika777v/routepense/pull/44) |
 | — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
-| — | MVP の後: 経路検索 U1 | **作業中**（方針の確認待ち） | [#15](https://github.com/Mika777v/routepense/issues/15) | [#57](https://github.com/Mika777v/routepense/pull/57)（確認待ち） |
+| — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
 
 ## 次にやること
 
-1. **経路検索（U1）は方針を決めた**（Task [#27](https://github.com/Mika777v/routepense/issues/27)）。ADR-0002 と要件定義の PR [#57](https://github.com/Mika777v/routepense/pull/57) が**オーナーの確認待ち**（自動マージは予約していない）。マージされたら、次の順に進める
-   - [#58](https://github.com/Mika777v/routepense/issues/58) ルートに `searchUrl` を足す（型・DB・API。DB のスキーマの変更なので `needs-confirm`）
-   - [#59](https://github.com/Mika777v/routepense/issues/59) 経路検索のインターフェースと API。最初に駅すぱあとフリープランの仕様書で、ADR-0002「実装の前に確かめること」を確かめる。クラウドのセッションからは `docs.ekispert.com`・`zenn.dev`・`developers.google.com` につながらなかった（ネットワークの設定で許可が要る）
-   - [#60](https://github.com/Mika777v/routepense/issues/60) ルートのフォームの画面（#58・#59 の後）
-   - オーナーの作業: 駅すぱあと API フリープランの申し込み（<https://api-info.ekispert.com/form/free/>。キーはメールで3営業日以内）。キーが届く前も、キーが無いときの実装で進められる
-   - 祝日の一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
+1. **MVP と、MVP の後の U1・U9 は終わった**（Epic #15 を閉じた）。開いている Issue は無い。要件定義の未決事項（§7）もすべて決まっている。次の作業はオーナーと決める。候補:
+   - 駅すぱあとのキーが届いたら、本物の API で経路検索を試す（`backend/.env` に `EKISPERT_API_KEY`。README「経路検索（駅すぱあと API）のキー」）。localhost から使うには `info@val.co.jp` への連絡が要る（無いと 403）
+     - キーの状況: **オーナーに確認中**（申し込み済みか・登録したドメイン・localhost の連絡）
+     - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。キーが届いたら、保存した URL が後日も開けるかを確かめる
+   - `npm audit` の `moderate severity vulnerabilities` の原因を調べる（下の4）
+   - 祝日の 2028年分: 一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
 2. 月次画面の作り（`frontend/src/calendar/`）:
    - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
    - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
-3. 教科書は第14章（Map と ReadonlyMap）まで。次の章は、U1 の作業で使う概念から選ぶ
+3. 教科書は第16章（Promise と async / await）まで。次の章は、次の機能の作業で使う概念から選ぶ
 4. `npm install` で `moderate severity vulnerabilities` と出る。`npm audit fix --force` はメジャー更新を含むので使わない。直すなら原因を調べる Task を作り、オーナーに確認する
 
 ## 会話で決めたこと（ほかの文書に無いもの）
@@ -69,4 +69,5 @@
   - 一括設定の `skipHolidays` は、型でも API でも必須（省略は 400）。既定値（除く）は画面の `initialBulkForm` の1か所だけに持つ
   - 祝日名は `CalendarDay`・`TableRow` の任意のプロパティ（祝日の日だけ付ける）。勤務区分・土日の色分けは変えない。色は深い緑（`--accent`）
 - **経路検索（U1）の方針**（2026-11-02。ADR-0002、#57 で確認待ち）: 有料の API は使わない。運賃は手で入れたまま、駅すぱあと API のフリープランで経路結果のページの URL をルートに付ける（フリープランは運賃の数値を返さない）。経路検索は backend のインターフェースの後ろに置き、キーは backend の環境変数に置く。Google（日本の電車の経路が返らない報告）と ODPT（経路探索が無い）は外した
+- **経路検索の画面（U1、#65）**: 「経路を調べる」の欄は、`GET /api/route-search/status` が `available: true` のときだけ出す。駅の欄が空なら、ルートの出発地・到着地で調べる。ポップアップブロックを避けるため、API を待つ前に空のタブを開き、URL が返ったら移動させる。経路の URL の欄はキーが無くても手で入れられる。API の `fieldErrors` の `from`・`to` は、ルートの欄と名前が同じなので、駅の欄のエラーとして分けて持つ
 - **claude.ai のアカウントのスキル**: 文書作成（docx・pdf・pptx・xlsx）・`skill-creator` はアカウントで有効なので、どのセッションでも使える。リポジトリには入れない
