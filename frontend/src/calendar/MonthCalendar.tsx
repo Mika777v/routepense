@@ -1,3 +1,4 @@
+import type { DateString } from "@routepense/shared";
 import { formatYen } from "../routes/route-form";
 import { WEEK_ORDER, WEEKDAY_LABELS, workStyleLabel, type CalendarDay, type CalendarWeek } from "./month";
 
@@ -5,37 +6,45 @@ type Props = {
   weeks: CalendarWeek[];
   /** 表の見出し（読み上げ用）。例: 2026年11月 */
   caption: string;
+  /** 編集中の日（無ければ null） */
+  selectedDate: DateString | null;
+  onSelect: (date: DateString) => void;
 };
 
 /** 1マス分の中身。記録の有無で表示を分ける */
-function DayCell({ day }: { day: CalendarDay }) {
+function DayContent({ day }: { day: CalendarDay }) {
   const { status } = day;
   if (status.kind === "unentered") {
     return (
-      <td className="cal-day is-unentered">
+      <>
         <span className="cal-date">{day.day}</span>
         <span className="cal-kind">未入力</span>
-      </td>
+      </>
     );
   }
   const { workStyle, extraTrips } = status.record;
   return (
-    <td className={`cal-day is-${workStyle.kind}`}>
+    <>
       <span className="cal-date">{day.day}</span>
       <span className="cal-kind">{workStyleLabel(workStyle)}</span>
       <span className="cal-fare">
         {status.fare > 0 ? formatYen(status.fare) : ""}
         {extraTrips.length > 0 && <span className="cal-extra">追加 {extraTrips.length}件</span>}
       </span>
-    </td>
+    </>
   );
 }
 
+/** マスの見た目の種類（CSS のクラス名に使う）: 在宅・出勤・休日・未入力 */
+function cellKind(day: CalendarDay): string {
+  return day.status.kind === "unentered" ? "unentered" : day.status.record.workStyle.kind;
+}
+
 /**
- * 月のカレンダー（表示だけ）。週ごとの配列を、そのまま表の行に並べる。
- * 日をクリックして直す動きは、次の作業（日の編集パネル）で足す。
+ * 月のカレンダー。週ごとの配列を、そのまま表の行に並べる。
+ * マスはボタンになっていて、押すと onSelect でその日を親に知らせる（編集パネルは親が出す）。
  */
-export function MonthCalendar({ weeks, caption }: Props) {
+export function MonthCalendar({ weeks, caption, selectedDate, onSelect }: Props) {
   return (
     <table className="calendar">
       <caption className="sr-only">{caption}</caption>
@@ -53,7 +62,20 @@ export function MonthCalendar({ weeks, caption }: Props) {
           // 週の最初の日付は月の中で1つだけなので、行の key に使える（空のマスだけの週は無い）
           <tr key={week.find((day) => day !== null)?.date}>
             {week.map((day, i) =>
-              day ? <DayCell key={day.date} day={day} /> : <td key={`empty-${i}`} className="cal-empty" />,
+              day ? (
+                <td key={day.date} className={`cal-day is-${cellKind(day)}`}>
+                  <button
+                    type="button"
+                    className="cal-button"
+                    aria-pressed={day.date === selectedDate}
+                    onClick={() => onSelect(day.date)}
+                  >
+                    <DayContent day={day} />
+                  </button>
+                </td>
+              ) : (
+                <td key={`empty-${i}`} className="cal-empty" />
+              ),
             )}
           </tr>
         ))}

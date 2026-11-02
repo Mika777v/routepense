@@ -13,10 +13,11 @@
 | 6 | [06-pure-functions-and-tests.md](06-pure-functions-and-tests.md) | 純粋関数とテスト（一括設定の対象日の計算） | ステップ4 一括設定のロジック |
 | 7 | [07-utility-and-intersection-types.md](07-utility-and-intersection-types.md) | 型から型を作る（Pick・Omit と交差型） | ステップ4 日次記録の API |
 | 8 | [08-react-lists-and-keys.md](08-react-lists-and-keys.md) | 配列から画面を作る（map と key） | ステップ5 月のカレンダー |
+| 9 | [09-react-lifting-state-up.md](09-react-lifting-state-up.md) | state の持ち上げ（親が持ち、子に渡す） | ステップ5 日の編集パネル |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- React の state の持ち上げ（日の編集パネルとカレンダーで記録を共有する。ステップ5 #22）
+- （次の章は、一括設定のダイアログ（#23）と一緒に決める）
 
 ## そのほかのファイル
 
