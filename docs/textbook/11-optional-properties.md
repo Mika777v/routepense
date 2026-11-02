@@ -115,6 +115,14 @@ days.push({
 
 祝日は1か月に数日だけなので、ほとんどの日は「祝日名が無い」日です。任意のプロパティにして、祝日の日だけ付けます。表示する側（`MonthCalendar.tsx`）は `day.holidayName !== undefined` で確かめてから出します。テストでは `expect(day).not.toHaveProperty("holidayName")` で、祝日でない日にプロパティが付いていないことを確かめています（下の「よくある間違い」の3）。
 
+### ルートの経路の URL: DB の NULL と「項目が無い」をつなぐ（`backend/src/routes/sqlite-route-repository.ts` の `toRoute`）
+
+```ts
+...(row.search_url !== null && { searchUrl: row.search_url }),
+```
+
+`Route` の `searchUrl?` は任意です。SQLite には「項目が無い」という考え方が無いので、URL の無いルートは列の値を `NULL` にして持ちます。読み出すときに `NULL` なら項目を付けず、書き込むときは `input.searchUrl ?? null` で `undefined` を `NULL` に変えます。こうすると、API の JSON に `"searchUrl": null` が出ず、URL の列を足す前に登録したルートも、今までと同じ形で読めます。
+
 ## よくある間違いと、型エラーの読み方
 
 ### 1. 確かめずに読む（型エラーになる例）

@@ -49,6 +49,17 @@ describe("/api/routes", () => {
     expect(body.fieldErrors?.map((e) => e.field)).toEqual(["name", "oneWayFare"]);
   });
 
+  it("経路の URL を付けて登録でき、http(s) でない URL は 400", async () => {
+    const searchUrl = "https://example.com/result?from=A&to=B";
+    const created = (await (await send("POST", "", { ...input, searchUrl })).json()) as Route;
+    expect(created.searchUrl).toBe(searchUrl);
+    expect(await (await send("GET", "")).json()).toEqual([created]);
+
+    const res = await send("POST", "", { ...input, searchUrl: "javascript:alert(1)" });
+    expect(res.status).toBe(400);
+    expect(((await res.json()) as ApiError).fieldErrors?.map((e) => e.field)).toEqual(["searchUrl"]);
+  });
+
   it("JSON として読めない本文は 400", async () => {
     const res = await send("POST", "", undefined, "{ not json");
     expect(res.status).toBe(400);

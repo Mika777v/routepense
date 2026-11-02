@@ -69,4 +69,11 @@ export const migrations: readonly { version: number; sql: string }[] = [
       CREATE INDEX extra_trips_daily_record_id ON extra_trips (daily_record_id);
     `,
   },
+  {
+    version: 3,
+    sql: `
+      -- 経路結果のページの URL（任意。ADR-0002）。今までのルートは NULL（URL なし）のまま読める
+      ALTER TABLE routes ADD COLUMN search_url TEXT;
+    `,
+  },
 ];

@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { DatabaseSync } from "node:sqlite";
+import { DatabaseSync } from "node:sqlite";
 import type { RouteInput } from "@routepense/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { openDatabase } from "../db/database";
@@ -70,12 +70,50 @@ describe("SqliteRouteRepository", () => {
     expect(repo.delete("user-1", created.id)).toBe(false);
   });
 
+  it("経路の URL を保存・変更・消去できる。URL が無いときは項目ごと無い", () => {
+    const searchUrl = "https://example.com/result?from=A&to=B";
+    const created = repo.create("user-1", { ...input, searchUrl });
+    expect(repo.get("user-1", created.id)?.searchUrl).toBe(searchUrl);
+
+    repo.update("user-1", created.id, { ...input, searchUrl: `${searchUrl}&v=2` });
+    expect(repo.get("user-1", created.id)?.searchUrl).toBe(`${searchUrl}&v=2`);
+
+    repo.update("user-1", created.id, input);
+    const cleared = repo.get("user-1", created.id);
+    expect(cleared).toEqual({ id: created.id, userId: "user-1", ...input });
+    expect(cleared && "searchUrl" in cleared).toBe(false);
+  });
+
   it("DB の制約で、マイナスの運賃は保存できない", () => {
     expect(() => repo.create("user-1", { ...input, oneWayFare: -1 })).toThrow();
   });
 });
 
 describe("openDatabase", () => {
+  it("URL の列が無い古い DB のルートも、マイグレーションの後にそのまま読める", () => {
+    const dir = mkdtempSync(join(tmpdir(), "routepense-"));
+    const file = join(dir, "old.db");
+    try {
+      // version 2 までの DB を作り、その時点の列だけでルートを入れる
+      const old = new DatabaseSync(file);
+      for (const m of migrations.filter((m) => m.version <= 2)) old.exec(m.sql);
+      old.exec("PRAGMA user_version = 2");
+      old
+        .prepare(
+          `INSERT INTO routes (id, user_id, name, from_place, to_place, transport, one_way_fare, created_at, updated_at)
+           VALUES ('r1', 'user-1', '自宅↔本社', 'A駅', 'B駅', 'train', 220, 'x', 'x')`,
+        )
+        .run();
+      old.close();
+
+      const db = openDatabase(file);
+      expect(new SqliteRouteRepository(db).list("user-1")).toEqual([{ id: "r1", userId: "user-1", ...input }]);
+      db.close();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("同じファイルを2回開いても、マイグレーションは1回だけ適用され、データは残る", () => {
     const dir = mkdtempSync(join(tmpdir(), "routepense-"));
     const file = join(dir, "test.db");

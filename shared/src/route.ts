@@ -17,6 +17,11 @@ export type Route = {
   transport: Transport;
   /** 片道運賃（円・整数） */
   oneWayFare: number;
+  /**
+   * 経路結果のページの URL（任意。例: 駅すぱあとの経路結果）。運賃を後から確かめるためのもの。
+   * 金額の計算には使わないので、RouteSnapshot には入れない（ADR-0002）
+   */
+  searchUrl?: string;
 };
 
 /**

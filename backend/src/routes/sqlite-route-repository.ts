@@ -12,6 +12,8 @@ type RouteRow = {
   to_place: string;
   transport: Transport;
   one_way_fare: number;
+  /** URL が無ければ NULL */
+  search_url: string | null;
 };
 
 function toRoute(row: RouteRow): Route {
@@ -23,10 +25,12 @@ function toRoute(row: RouteRow): Route {
     to: row.to_place,
     transport: row.transport,
     oneWayFare: row.one_way_fare,
+    // DB の NULL は「項目が無い」に変える（API の JSON に null を出さない）
+    ...(row.search_url !== null && { searchUrl: row.search_url }),
   };
 }
 
-const COLUMNS = "id, user_id, name, from_place, to_place, transport, one_way_fare";
+const COLUMNS = "id, user_id, name, from_place, to_place, transport, one_way_fare, search_url";
 
 export class SqliteRouteRepository implements RouteRepository {
   constructor(
@@ -53,9 +57,20 @@ export class SqliteRouteRepository implements RouteRepository {
     const at = this.now().toISOString();
     this.db
       .prepare(
-        `INSERT INTO routes (${COLUMNS}, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO routes (${COLUMNS}, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(id, userId, input.name, input.from, input.to, input.transport, input.oneWayFare, at, at);
+      .run(
+        id,
+        userId,
+        input.name,
+        input.from,
+        input.to,
+        input.transport,
+        input.oneWayFare,
+        input.searchUrl ?? null,
+        at,
+        at,
+      );
     return { id, userId, ...input };
   }
 
@@ -63,7 +78,8 @@ export class SqliteRouteRepository implements RouteRepository {
     const result = this.db
       .prepare(
         `UPDATE routes
-         SET name = ?, from_place = ?, to_place = ?, transport = ?, one_way_fare = ?, updated_at = ?
+         SET name = ?, from_place = ?, to_place = ?, transport = ?, one_way_fare = ?, search_url = ?,
+             updated_at = ?
          WHERE user_id = ? AND id = ?`,
       )
       .run(
@@ -72,6 +88,7 @@ export class SqliteRouteRepository implements RouteRepository {
         input.to,
         input.transport,
         input.oneWayFare,
+        input.searchUrl ?? null,
         this.now().toISOString(),
         userId,
         id,
