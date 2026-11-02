@@ -6,10 +6,10 @@
 | 章 | ファイル | 内容 | 関係するステップ |
 |---|---|---|---|
 | 1 | [01-tsconfig-and-typecheck.md](01-tsconfig-and-typecheck.md) | tsconfig と型チェック | ステップ1 雛形 |
+| 2 | [02-union-types.md](02-union-types.md) | 判別可能なユニオン型 | ステップ2 共有の型 |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
-- 判別可能なユニオン型（勤務区分 `WorkStyle`）
 - 純粋関数とテスト（一括設定の対象日の計算）
 - API の受け口でのバリデーション
 - React のフォーム
