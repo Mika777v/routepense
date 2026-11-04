@@ -9,6 +9,8 @@ export { nextDate, weekdayOf } from "./date";
 export { HOLIDAY_YEARS, HOLIDAYS, holidayName } from "./holidays";
 export type { ExtraTrip, ExtraTripInput, TripType } from "./extra-trip";
 export type { MonthlyFare } from "./fare";
+export type { CsvRow } from "./csv";
+export { CSV_HEADER, csvFileName, escapeCsvField, monthCsv, monthCsvRows, UTF8_BOM } from "./csv";
 export { assertNever, dailyFare, extraTripFare, monthlyFare, workStyleFare } from "./fare";
 export type { Route, RouteInput, RouteSnapshot, Transport } from "./route";
 export { TRANSPORTS } from "./route";
