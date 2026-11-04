@@ -127,7 +127,7 @@ export class SqliteDailyRecordRepository implements DailyRecordRepository {
   get(userId: string, date: DateString): DailyRecord | undefined {
     const row = this.db
       .prepare(`SELECT ${RECORD_COLUMNS} FROM daily_records WHERE user_id = ? AND date = ?`)
-      .get(userId, date) as DailyRecordRow | undefined;
+      .get(date, userId) as DailyRecordRow | undefined;
     return row ? this.withExtraTrips([row])[0] : undefined;
   }
 
