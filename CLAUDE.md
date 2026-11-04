@@ -63,6 +63,7 @@
 7. PR のタイトルは Conventional Commits（`pr-title.yml` の type・scope だけを使う）。本文は `.github/pull_request_template.md` の見出しに沿って書く
 8. **force push はしない。** push 済みのブランチの履歴を書き換えない。マージ済みの PR の続きは、新しいブランチで別の PR にする。main の変更を取り込むときは rebase ではなく merge する
 9. PR を出す前に、手元で型チェック・lint・テストを通す（雛形ができたら `npm run typecheck && npm run lint && npm run test`）
+10. **画面のメッセージ・API のステータス・起動のログを足す・変えるときは、`docs/troubleshooting.md` の該当の行も同じ PR で直す。** 困ったことが起きて原因が分かったら、手順書の「起きたことの記録」と表に足す
 
 ## Issue の使い方（2026-11 にオーナーと決めたこと）
 - **作業は Issue で管理する。** 「進め方」の1ステップが1つの Epic（`[Epic] E03 ...`。E03〜E06 がステップ3〜6、E07 は MVP の後）、1つの PR（ときに2つ）で終わる作業が1つの Task（`[Task] E04-T2 ...`）。Task は親の Epic の sub-issue にする
