@@ -9,3 +9,4 @@ ADR を追加・変更する PR は、自動マージせずにオーナーが読
 |---|---|---|
 | [0001](0001-sqlite-driver.md) | SQLite には Node.js 組み込みの node:sqlite を使う | 決定 |
 | [0002](0002-route-search.md) | 運賃は手で入れたまま、駅すぱあと API のフリープランで経路の URL を付ける | 提案 |
+| [0003](0003-api-docs-openapi.md) | API の仕様書は OpenAPI を手で書き、Swagger UI で見る | 提案 |
