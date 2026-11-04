@@ -22,28 +22,32 @@
 | — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
 | — | 依存ライブラリの手入れ（E08） | 完了（A: 上流を待つ） | [#67](https://github.com/Mika777v/routepense/issues/67)（閉じた） | [#69](https://github.com/Mika777v/routepense/pull/69) |
 | — | 駅すぱあとの本物の API で経路検索を試す（E09） | 進行中（オーナーの申し込み待ち） | [#71](https://github.com/Mika777v/routepense/issues/71) | [#75](https://github.com/Mika777v/routepense/pull/75) |
-| — | CSV 出力 F7（E10） | 完了 | [#76](https://github.com/Mika777v/routepense/issues/76) | [#80](https://github.com/Mika777v/routepense/pull/80)・[#84](https://github.com/Mika777v/routepense/pull/84)・この PR |
-| — | 教科書の手入れ（E11） | 第17・18章 | [#81](https://github.com/Mika777v/routepense/issues/81) | [#83](https://github.com/Mika777v/routepense/pull/83)・[#84](https://github.com/Mika777v/routepense/pull/84) |
-| — | 困ったときの手順書（E12） | 進行中 | [#86](https://github.com/Mika777v/routepense/issues/86) | T1 [#87](https://github.com/Mika777v/routepense/issues/87) の PR |
+| — | CSV 出力 F7（E10） | 完了 | [#76](https://github.com/Mika777v/routepense/issues/76)（閉じた） | [#80](https://github.com/Mika777v/routepense/pull/80)・[#84](https://github.com/Mika777v/routepense/pull/84)・[#85](https://github.com/Mika777v/routepense/pull/85) |
+| — | 教科書の手入れ（E11） | 完了（第17・18章） | [#81](https://github.com/Mika777v/routepense/issues/81)（閉じた） | [#83](https://github.com/Mika777v/routepense/pull/83)・[#84](https://github.com/Mika777v/routepense/pull/84) |
+| — | 困ったときの手順書（E12） | 確認待ち（#92） | [#86](https://github.com/Mika777v/routepense/issues/86) | [#91](https://github.com/Mika777v/routepense/pull/91)・[#93](https://github.com/Mika777v/routepense/pull/93) |
+| — | API の仕様書 OpenAPI・Swagger UI（E13） | 確認待ち（#99） | [#94](https://github.com/Mika777v/routepense/issues/94) | — |
 
 ## 次にやること
 
-1. **Epic #86（E12）困ったときの手順書。** `docs/troubleshooting.md` は T1 #87 で作った。T3 #89（backend が止まると「HTTP 502」としか出ない）・T4 #90（ポートが使用中でも起動の文が出る）も直した。残りは T2 #88（CLAUDE.md に「メッセージを変えたら手順書も直す」。オーナーの確認待ち、PR #92）。オーナーの動作確認で困ったことは、手順書の「起きたことの記録」に足す
-1. **Epic #71（E09）駅すぱあとの本物の API で経路検索を試す。** 手順と状況は `docs/ekispert-setup.md`
+1. **オーナーの確認待ちの PR が2つ。** マージされたら、それぞれの続きに進む
+   - [#92](https://github.com/Mika777v/routepense/pull/92)（E12-T2 #88）: CLAUDE.md「git の運用」10 に「メッセージ・ステータス・起動のログを変えたら `docs/troubleshooting.md` も同じ PR で直す」。マージされたら Epic #86 の Task が全部閉じるので、Epic を閉じる
+   - [#99](https://github.com/Mika777v/routepense/pull/99)（E13-T1 #95）: ADR-0003（OpenAPI を手で書き Swagger UI で見る。依存 `swagger-ui-express` 5.0.1・`yaml` 2.9.1・`@types/swagger-ui-express` 4.1.8）。マージされたら T2 #96（`docs/api/openapi.yaml` と「メソッド＋パス」の一致のテスト）→ T3 #97（`/api/docs` の Swagger UI）の順に進む。T4 #98（CLAUDE.md のルールと教科書の章）は #92 のマージの後（CLAUDE.md の同じ箇所を触るため）
+2. **Epic #86（E12）困ったときの手順書。** `docs/troubleshooting.md` は #91 で作り、見つけた2件（#89 backend が止まると「HTTP 502」としか出ない・#90 ポートが使用中でも起動の文が出る）は #93 で直した。オーナーの動作確認で困ったことは、手順書の「起きたことの記録」に足す
+3. **Epic #71（E09）駅すぱあとの本物の API で経路検索を試す。** 手順と状況は `docs/ekispert-setup.md`
    - キーの状況: **まだ申し込んでいない**（2026-11-04 にオーナーが回答: 届くまでの3営業日に作業する時間が取れないので、今は申し込まない）。オーナーが申し込み、キーが届いたら localhost の連絡（`info@val.co.jp`。下書きは `docs/ekispert-setup.md`）をする
    - T1 #72（申し込みの手順と連絡文）は済み。T2 #73（キーを設定して確かめる）はキーと localhost の許可が揃ってから。T3 #74（保存した URL が後日も開けるか）は T2 の後
    - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。T3 で確かめる
    - 作業した環境（クラウド）からは `api-info.ekispert.com` が開けなかった（ネットワークで許可していない）。フォームの欄は確かめられていない
    - ほかの候補:
      - 祝日の 2028年分: 一覧は 2026・2027年 だけ。2028年は、内閣府が 2027年2月ごろに春分・秋分の日を決めた後に `shared/src/holidays.ts` と `HOLIDAY_YEARS` に足す
-2. 月次画面の作り（`frontend/src/calendar/`）:
+4. 月次画面の作り（`frontend/src/calendar/`）:
    - `CalendarPage.tsx` が、表示中の月・その月の記録の一覧・ルートの一覧・一括設定の当てはめ中の内容（`Draft`）・見せ方（カレンダー / 表）を持つ。カレンダー・表・合計は、どれも「保存済み＋当てはめ中」の同じ記録の一覧から作る
    - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
-3. 教科書は第18章（タプル型）まで。次の章は、次の機能の作業で使う概念から選ぶ
-4. **使い勝手の手直し**: オーナーが教科書を読みながら動作確認し、気になったところを挙げる（2026-11-04）。挙がったら E11 とは別の Epic で Task にする
-5. **既知の警告**: `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。元は lint だけで使う `minimatch@10.2.6` の1件で、上流（`eslint`・`typescript-eslint`）が `minimatch@^11` に上げるのを待つと決めた。`npm audit fix --force` は古い版に戻すだけなので使わない。`overrides` も書かない
+5. 教科書は第18章（タプル型）まで。次の章は、次の機能の作業で使う概念から選ぶ
+6. **使い勝手の手直し**: オーナーが教科書を読みながら動作確認し、気になったところを挙げる（2026-11-04）。挙がったら E11 とは別の Epic で Task にする
+7. **既知の警告**: `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。元は lint だけで使う `minimatch@10.2.6` の1件で、上流（`eslint`・`typescript-eslint`）が `minimatch@^11` に上げるのを待つと決めた。`npm audit fix --force` は古い版に戻すだけなので使わない。`overrides` も書かない
 
 ## 会話で決めたこと（ほかの文書に無いもの）
 
@@ -80,4 +84,6 @@
 - **経路検索（U1）の方針**（2026-11-02。ADR-0002、#57 で確認待ち）: 有料の API は使わない。運賃は手で入れたまま、駅すぱあと API のフリープランで経路結果のページの URL をルートに付ける（フリープランは運賃の数値を返さない）。経路検索は backend のインターフェースの後ろに置き、キーは backend の環境変数に置く。Google（日本の電車の経路が返らない報告）と ODPT（経路探索が無い）は外した
 - **経路検索の画面（U1、#65）**: 「経路を調べる」の欄は、`GET /api/route-search/status` が `available: true` のときだけ出す。駅の欄が空なら、ルートの出発地・到着地で調べる。ポップアップブロックを避けるため、API を待つ前に空のタブを開き、URL が返ったら移動させる。経路の URL の欄はキーが無くても手で入れられる。API の `fieldErrors` の `from`・`to` は、ルートの欄と名前が同じなので、駅の欄のエラーとして分けて持つ
 - **CSV 出力（F7・U10、2026-11-04）**: 要件の案はオーナーが全部おすすめのとおりで確認（#80）。CSV の文字列は `shared/src/csv.ts`（`monthCsv`）、画面は `frontend/src/calendar/csv-export.ts` と `frontend/src/download.ts`。表示の文字（電車・在宅など）は shared の中にも持っていて、画面の `route-form.ts` などと2か所にある
+- **困ったときの手順書（E12、2026-11-04）**: 「症状 → 原因 → 見る場所」の表で `docs/troubleshooting.md` に1つにまとめる。実際に困ったことは後から足す（オーナーの方針）
+- **API の仕様書（E13、2026-11-04）**: オーナーが A 案（OpenAPI を手で書き、Swagger UI で見る）を選んだ。B（zod などに替えてコードから作る）は、受け口の型ガード（教科書 第4章）を全部書き直すので見送った。正は `shared/` の型と backend のコードで、`openapi.yaml` はその写し（ADR-0003）
 - **claude.ai のアカウントのスキル**: 文書作成（docx・pdf・pptx・xlsx）・`skill-creator` はアカウントで有効なので、どのセッションでも使える。リポジトリには入れない
