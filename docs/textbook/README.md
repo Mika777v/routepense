@@ -21,6 +21,7 @@
 | 14 | [14-map-and-readonlymap.md](14-map-and-readonlymap.md) | Map と ReadonlyMap（キーで引く一覧） | MVP の後 祝日の一覧 |
 | 15 | [15-dependency-injection.md](15-dependency-injection.md) | インターフェースと実装の差し替え（依存性の注入） | MVP の後 経路検索の API |
 | 16 | [16-promise-and-async-await.md](16-promise-and-async-await.md) | 待つ処理の型（Promise と async / await） | MVP の後 経路検索の画面 |
+| 17 | [17-generics.md](17-generics.md) | ジェネリクス（型を引数にとる型と関数） | 第4・5・7・16章のまとめ（`Result<T>`・`request<T>`・`K extends keyof`） |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
