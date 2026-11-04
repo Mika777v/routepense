@@ -27,7 +27,7 @@ export function bulkTargetDates(
 ): DateString[] {
   const result: DateString[] = [];
   // YYYY-MM-DD は桁数がそろっているので、文字列のまま大小を比べられる
-  for (let date = input.startDate; date <= input.endDate; date = nextDate(date)) {
+  for (let date = input.startDate; date < input.endDate; date = nextDate(date)) {
     const skipped = input.skipHolidays && holidayName(date) !== undefined;
     if (input.weekdays.includes(weekdayOf(date)) && !skipped) {
       result.push(date);
