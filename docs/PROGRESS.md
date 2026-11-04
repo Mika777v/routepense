@@ -24,9 +24,11 @@
 | — | 駅すぱあとの本物の API で経路検索を試す（E09） | 進行中（オーナーの申し込み待ち） | [#71](https://github.com/Mika777v/routepense/issues/71) | [#75](https://github.com/Mika777v/routepense/pull/75) |
 | — | CSV 出力 F7（E10） | 完了 | [#76](https://github.com/Mika777v/routepense/issues/76) | [#80](https://github.com/Mika777v/routepense/pull/80)・[#84](https://github.com/Mika777v/routepense/pull/84)・この PR |
 | — | 教科書の手入れ（E11） | 第17・18章 | [#81](https://github.com/Mika777v/routepense/issues/81) | [#83](https://github.com/Mika777v/routepense/pull/83)・[#84](https://github.com/Mika777v/routepense/pull/84) |
+| — | 困ったときの手順書（E12） | 進行中 | [#86](https://github.com/Mika777v/routepense/issues/86) | T1 [#87](https://github.com/Mika777v/routepense/issues/87) の PR |
 
 ## 次にやること
 
+1. **Epic #86（E12）困ったときの手順書。** `docs/troubleshooting.md` は T1 #87 で作った。残り: T2 #88（CLAUDE.md に「メッセージを変えたら手順書も直す」。確認待ち）、T3 #89（backend が止まると「HTTP 502」としか出ない）、T4 #90（ポートが使用中でも起動の文が出る）。オーナーの動作確認で困ったことは、手順書の「起きたことの記録」に足す
 1. **Epic #71（E09）駅すぱあとの本物の API で経路検索を試す。** 手順と状況は `docs/ekispert-setup.md`
    - キーの状況: **まだ申し込んでいない**（2026-11-04 にオーナーが回答: 届くまでの3営業日に作業する時間が取れないので、今は申し込まない）。オーナーが申し込み、キーが届いたら localhost の連絡（`info@val.co.jp`。下書きは `docs/ekispert-setup.md`）をする
    - T1 #72（申し込みの手順と連絡文）は済み。T2 #73（キーを設定して確かめる）はキーと localhost の許可が揃ってから。T3 #74（保存した URL が後日も開けるか）は T2 の後

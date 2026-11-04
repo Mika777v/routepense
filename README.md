@@ -58,6 +58,10 @@ EKISPERT_API_KEY=届いたキー
 - 文字コードは UTF-8（BOM 付き）なので、Excel でそのまま開いても文字化けしません
 - 一括設定の当てはめ中は保存できません（先に登録するか、取り消します）。未入力の日は CSV に入りません
 
+## 困ったとき
+
+エラーが出た・動きがおかしいときは [docs/troubleshooting.md](docs/troubleshooting.md)（症状 → 原因 → 見る場所）。
+
 ## 確認のコマンド
 
 ```bash
