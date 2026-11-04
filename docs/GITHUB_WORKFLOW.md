@@ -1,7 +1,7 @@
 # GitHub の運用ルール
 
 knowledge-navigator で使っている運用を、このリポジトリの規模に合わせて小さくしたもの。
-Claude が守るルールの要点は `CLAUDE.md` の「git の運用」にあり、このファイルでは理由と設定の手順を説明する。
+Claude が守るルールの要点は `CLAUDE.md`、全文は `docs/DEV_RULES.md` の「git の運用」にあり、このファイルでは理由と設定の手順を説明する。
 
 ## 1. 全体の流れ
 
@@ -63,7 +63,7 @@ scope（省略可）: `frontend` `backend` `shared` `db` `docs` `textbook` `ci` 
 | ADR の追加・変更（`docs/adr/`） | 後から変えにくい判断。オーナーが読んで学ぶため、本文に選択肢と決めた理由を短くまとめる |
 | DB のスキーマの変更（テーブル定義・マイグレーション） | すでにあるデータに影響し、戻しにくい |
 | 要件定義の変更（`docs/requirements.md`） | 何を作るかはオーナーが決める |
-| 運用ルール・CI・リポジトリ設定の変更（`CLAUDE.md`・`.github/`・`scripts/github/`） | 自動マージの仕組みそのものを変えるため |
+| 運用ルール・CI・リポジトリ設定の変更（`CLAUDE.md`・`docs/DEV_RULES.md`・`.github/`・`scripts/github/`） | 自動マージの仕組みそのものを変えるため |
 | 依存ライブラリのメジャーバージョンの更新 | 動きが変わりやすい |
 | 認証・権限まわり（将来、複数ユーザーにするとき） | 安全に関わる |
 | タグ・GitHub Release | 公開の区切りになる |
