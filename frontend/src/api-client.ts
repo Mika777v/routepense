@@ -6,6 +6,15 @@ import type { ApiError } from "@routepense/shared";
  */
 export type ApiResult<T> = { ok: true; value: T } | { ok: false; error: ApiError };
 
+/** backend につながらないときの文。fetch の失敗と、開発サーバー（Vite）の proxy が返す 502 などで使う */
+export const CONNECTION_ERROR = "サーバーに接続できません。backend が起動しているか確かめてください";
+
+/**
+ * 本文が ApiError でない 502・503・504 は、backend ではなく間の proxy が返したもの（backend が止まっているなど）。
+ * backend の 502（経路検索の失敗）は ApiError の本文があるので、ここには入らない
+ */
+const GATEWAY_STATUSES = new Set([502, 503, 504]);
+
 /**
  * API を呼び、応答を ApiResult に変える。通信そのものの失敗（backend が止まっているなど）もエラーとして返す。
  * ルートの API と日次記録の API で同じ決まりを使うので、ここに1つだけ置く。
@@ -18,7 +27,7 @@ export async function request<T>(url: string, init?: RequestInit): Promise<ApiRe
       headers: { "Content-Type": "application/json" },
     });
   } catch {
-    return { ok: false, error: { error: "サーバーに接続できません。backend が起動しているか確かめてください" } };
+    return { ok: false, error: { error: CONNECTION_ERROR } };
   }
 
   if (res.status === 204) {
@@ -28,7 +37,9 @@ export async function request<T>(url: string, init?: RequestInit): Promise<ApiRe
   if (!res.ok) {
     // backend は ApiError の形で返す決まり（shared/src/api.ts）。形が違っても画面が壊れないよう、既定の文を用意する
     const body = (await res.json().catch(() => null)) as ApiError | null;
-    return { ok: false, error: body ?? { error: `エラーが起きました（HTTP ${res.status}）` } };
+    if (body) return { ok: false, error: body };
+    if (GATEWAY_STATUSES.has(res.status)) return { ok: false, error: { error: CONNECTION_ERROR } };
+    return { ok: false, error: { error: `エラーが起きました（HTTP ${res.status}）` } };
   }
   return { ok: true, value: (await res.json()) as T };
 }

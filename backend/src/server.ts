@@ -24,7 +24,18 @@ createApp({
   dailyRecords: new SqliteDailyRecordRepository(db),
   routeSearch: createRouteSearch(process.env),
   userId: LOCAL_USER_ID,
-}).listen(port, () => {
+}).listen(port, (error?: NodeJS.ErrnoException) => {
+  // Express 5 は、待ち受けに失敗したとき（ポートが使用中など）も、この関数をエラーを付けて呼ぶ
+  if (error) {
+    if (error.code === "EADDRINUSE") {
+      console.error(
+        `ポート ${port} はほかのプログラムが使っています。前に起動した backend（npm run dev）を止めるか、PORT を変えて起動してください`,
+      );
+    } else {
+      console.error("backend を起動できませんでした", error);
+    }
+    process.exit(1);
+  }
   console.log(`backend: http://localhost:${port}（DB: ${dbPath}）`);
   console.log(`経路検索: ${process.env.EKISPERT_API_KEY?.trim() ? "駅すぱあと API フリープラン" : "使えない（EKISPERT_API_KEY が無い）"}`);
 });
