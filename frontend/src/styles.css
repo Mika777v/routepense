@@ -711,6 +711,24 @@ button.danger:hover:not(:disabled) {
   display: inline-flex;
 }
 
+/* CSV で保存（F7）。summary の行の右端に寄せる */
+.csv-export {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.csv-export button {
+  padding: 0.25rem 0.875rem;
+}
+
+/* 未入力の日が CSV に入らないことは、未入力の表示と同じ赤で知らせる */
+.csv-export-note {
+  color: var(--danger);
+}
+
 .view-switch button {
   padding: 0.25rem 0.875rem;
   border-radius: 0;
