@@ -3,7 +3,7 @@
 新しいセッションは、`CLAUDE.md` の次にこのファイルを読んで続きを始める。
 セッションを終える前に、このファイルを更新して PR にする（`CLAUDE.md`「セッションとコンテキストの使い方」）。
 
-- 最終更新: 2026-11-02
+- 最終更新: 2026-11-04
 
 ## ステップ（CLAUDE.md「進め方」）と Epic
 
@@ -21,12 +21,14 @@
 | — | MVP の後: 祝日 U9 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15) | [#51](https://github.com/Mika777v/routepense/pull/51)・[#52](https://github.com/Mika777v/routepense/pull/52)・[#53](https://github.com/Mika777v/routepense/pull/53)・[#54](https://github.com/Mika777v/routepense/pull/54)・[#55](https://github.com/Mika777v/routepense/pull/55) |
 | — | MVP の後: 経路検索 U1 | 完了 | [#15](https://github.com/Mika777v/routepense/issues/15)（閉じた） | [#57](https://github.com/Mika777v/routepense/pull/57)・[#63](https://github.com/Mika777v/routepense/pull/63)・[#64](https://github.com/Mika777v/routepense/pull/64)・[#65](https://github.com/Mika777v/routepense/pull/65) |
 | — | 依存ライブラリの手入れ（E08） | 完了（A: 上流を待つ） | [#67](https://github.com/Mika777v/routepense/issues/67)（閉じた） | [#69](https://github.com/Mika777v/routepense/pull/69) |
-| — | 駅すぱあとの本物の API で経路検索を試す（E09） | 進行中（オーナーの申し込み待ち） | [#71](https://github.com/Mika777v/routepense/issues/71) | T1 [#72](https://github.com/Mika777v/routepense/issues/72) の PR |
+| — | 駅すぱあとの本物の API で経路検索を試す（E09） | 進行中（オーナーの申し込み待ち） | [#71](https://github.com/Mika777v/routepense/issues/71) | [#75](https://github.com/Mika777v/routepense/pull/75) |
+| — | CSV 出力 F7（E10） | 完了 | [#76](https://github.com/Mika777v/routepense/issues/76) | [#80](https://github.com/Mika777v/routepense/pull/80)・[#84](https://github.com/Mika777v/routepense/pull/84)・この PR |
+| — | 教科書の手入れ（E11） | 第17・18章 | [#81](https://github.com/Mika777v/routepense/issues/81) | [#83](https://github.com/Mika777v/routepense/pull/83)・[#84](https://github.com/Mika777v/routepense/pull/84) |
 
 ## 次にやること
 
 1. **Epic #71（E09）駅すぱあとの本物の API で経路検索を試す。** 手順と状況は `docs/ekispert-setup.md`
-   - キーの状況: **まだ申し込んでいない**（2026-11-02 にオーナーが回答。前の「まだ届いていない」は誤り）。オーナーが申し込み、キーが届いたら localhost の連絡（`info@val.co.jp`。下書きは `docs/ekispert-setup.md`）をする
+   - キーの状況: **まだ申し込んでいない**（2026-11-04 にオーナーが回答: 届くまでの3営業日に作業する時間が取れないので、今は申し込まない）。オーナーが申し込み、キーが届いたら localhost の連絡（`info@val.co.jp`。下書きは `docs/ekispert-setup.md`）をする
    - T1 #72（申し込みの手順と連絡文）は済み。T2 #73（キーを設定して確かめる）はキーと localhost の許可が揃ってから。T3 #74（保存した URL が後日も開けるか）は T2 の後
    - 生成した URL を保存してよいか・有効期限は、仕様書にも FAQ にも書かれていない（#64 で確認）。T3 で確かめる
    - 作業した環境（クラウド）からは `api-info.ekispert.com` が開けなかった（ネットワークで許可していない）。フォームの欄は確かめられていない
@@ -37,8 +39,9 @@
    - 記録 → 週の配列は `month.ts` の `buildCalendar`。表の行は `month-table.ts` の `buildTableRows`（週の配列から作る）。月の合計は `shared` の `monthlyFare`（`MonthTotal.tsx` が表示）
    - 日の編集パネル `DayPanel.tsx`、一括設定 `BulkDialog.tsx`・`DraftBar.tsx`・`draft.ts`、追加の移動 `ExtraTrips.tsx`・`ExtraTripForm.tsx`、表 `MonthTable.tsx`
    - API の呼び出しの共通部分は `frontend/src/api-client.ts`（`request`・`ApiResult`）
-3. 教科書は第16章（Promise と async / await）まで。次の章は、次の機能の作業で使う概念から選ぶ
-4. **既知の警告**: `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。元は lint だけで使う `minimatch@10.2.6` の1件で、上流（`eslint`・`typescript-eslint`）が `minimatch@^11` に上げるのを待つと決めた。`npm audit fix --force` は古い版に戻すだけなので使わない。`overrides` も書かない
+3. 教科書は第18章（タプル型）まで。次の章は、次の機能の作業で使う概念から選ぶ
+4. **使い勝手の手直し**: オーナーが教科書を読みながら動作確認し、気になったところを挙げる（2026-11-04）。挙がったら E11 とは別の Epic で Task にする
+5. **既知の警告**: `npm install` で `11 moderate severity vulnerabilities` と出るのは既知（`docs/npm-audit.md`）。元は lint だけで使う `minimatch@10.2.6` の1件で、上流（`eslint`・`typescript-eslint`）が `minimatch@^11` に上げるのを待つと決めた。`npm audit fix --force` は古い版に戻すだけなので使わない。`overrides` も書かない
 
 ## 会話で決めたこと（ほかの文書に無いもの）
 
@@ -74,4 +77,5 @@
   - 祝日名は `CalendarDay`・`TableRow` の任意のプロパティ（祝日の日だけ付ける）。勤務区分・土日の色分けは変えない。色は深い緑（`--accent`）
 - **経路検索（U1）の方針**（2026-11-02。ADR-0002、#57 で確認待ち）: 有料の API は使わない。運賃は手で入れたまま、駅すぱあと API のフリープランで経路結果のページの URL をルートに付ける（フリープランは運賃の数値を返さない）。経路検索は backend のインターフェースの後ろに置き、キーは backend の環境変数に置く。Google（日本の電車の経路が返らない報告）と ODPT（経路探索が無い）は外した
 - **経路検索の画面（U1、#65）**: 「経路を調べる」の欄は、`GET /api/route-search/status` が `available: true` のときだけ出す。駅の欄が空なら、ルートの出発地・到着地で調べる。ポップアップブロックを避けるため、API を待つ前に空のタブを開き、URL が返ったら移動させる。経路の URL の欄はキーが無くても手で入れられる。API の `fieldErrors` の `from`・`to` は、ルートの欄と名前が同じなので、駅の欄のエラーとして分けて持つ
+- **CSV 出力（F7・U10、2026-11-04）**: 要件の案はオーナーが全部おすすめのとおりで確認（#80）。CSV の文字列は `shared/src/csv.ts`（`monthCsv`）、画面は `frontend/src/calendar/csv-export.ts` と `frontend/src/download.ts`。表示の文字（電車・在宅など）は shared の中にも持っていて、画面の `route-form.ts` などと2か所にある
 - **claude.ai のアカウントのスキル**: 文書作成（docx・pdf・pptx・xlsx）・`skill-creator` はアカウントで有効なので、どのセッションでも使える。リポジトリには入れない

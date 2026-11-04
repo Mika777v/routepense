@@ -1,8 +1,10 @@
 import { monthlyFare, type BulkApplyResult, type DailyRecord, type DateString } from "@routepense/shared";
 import { useEffect, useState } from "react";
+import { downloadText } from "../download";
 import { listRoutes } from "../routes/routes-api";
 import { listDailyRecords, saveBulk } from "./daily-records-api";
 import { BulkDialog } from "./BulkDialog";
+import { buildCsvFile, csvExportNote } from "./csv-export";
 import { errorMessage, removeRecord, upsertRecord } from "./day-edit";
 import { DayPanel, type RoutesState } from "./DayPanel";
 import {
@@ -139,6 +141,14 @@ export function CalendarPage() {
     else void saveDraft(summary);
   }
 
+  function handleCsv() {
+    // 保存済みの記録だけを使う（当てはめ中はボタンを押せない。U10）
+    const file = buildCsvFile(month, saved);
+    downloadText(file.fileName, file.text, "text/csv;charset=utf-8");
+  }
+
+  const csvNote = csvExportNote(hasDraft, unentered ?? 0);
+
   return (
     <section className="calendar-page" aria-labelledby="calendar-heading">
       <div className="calendar-toolbar">
@@ -203,6 +213,12 @@ export function CalendarPage() {
               ))}
             </div>
             <span>日を押すと、勤務区分を選べます</span>
+            <span className="csv-export">
+              <button type="button" disabled={hasDraft} onClick={handleCsv}>
+                CSV で保存
+              </button>
+              {csvNote && <span className={hasDraft ? undefined : "csv-export-note"}>{csvNote}</span>}
+            </span>
           </div>
           {hasDraft && (
             <DraftBar
