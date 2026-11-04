@@ -23,7 +23,7 @@
 | `npm install` で `11 moderate severity vulnerabilities` | 既知（lint だけで使う `minimatch`）。上流の更新を待つと決めた | `docs/npm-audit.md`。`npm audit fix --force` はしない |
 | `npm install` で `EBADENGINE` の警告、または起動で `node:sqlite` が無いというエラー | Node.js が古い。`node:sqlite` を使うので 22.13 以上が要る | `node -v`。版は `.nvmrc`（22）と `package.json` の `engines` |
 | backend の起動で `ExperimentalWarning: SQLite is an experimental feature` | 正常。`node:sqlite` がまだ試験的な機能なだけ | 対処は不要（ADR-0001） |
-| `backend: http://localhost:3000` と出たのに、画面が古い・別の動き | **ポート 3000 を別の backend が使っている。** 今の作りでは、使用中でも起動の文が出てしまう（直す Task: [#90](https://github.com/Mika777v/routepense/issues/90)） | ほかのターミナルの `npm run dev` を止める。または `PORT=3001` で起動する（その場合は `frontend/vite.config.ts` の proxy の先も合わせる） |
+| `ポート 3000 はほかのプログラムが使っています` と出て backend が終わる | ポート 3000 を、前に起動した backend など別のプログラムが使っている | ほかのターミナルの `npm run dev` を止める。または `PORT=3001` で起動する（その場合は `frontend/vite.config.ts` の proxy の先も合わせる）。判定は `backend/src/server.ts` |
 | frontend が `http://localhost:5174` など、5173 以外で起動した | 5173 を別のもの（前に起動した Vite など）が使っていて、Vite が空いている番号に移った | 表示された URL を開けば動く。気になるなら前の Vite を止める |
 | backend のログに `経路検索: 使えない（EKISPERT_API_KEY が無い）` | 正常。キーが無いときは経路検索の欄を出さない | キーを使うときは `docs/ekispert-setup.md` |
 
@@ -31,8 +31,8 @@
 
 | メッセージ | 考えられる原因 | 見る場所・対処 |
 |---|---|---|
-| エラーが起きました（HTTP 502） | **`npm run dev` で backend だけが止まっている**（Vite の proxy が 502 を返す）。backend の起動に失敗していることも多い | ターミナルの `[backend]` の行。`[frontend]` に `http proxy error ... ECONNREFUSED 127.0.0.1:3000` が出ていれば、backend につながっていない（分かりやすい文に直す Task: [#89](https://github.com/Mika777v/routepense/issues/89)） |
-| サーバーに接続できません。backend が起動しているか確かめてください | 通信そのものが失敗した（Vite も止まっている、ネットワークが切れた） | `frontend/src/api-client.ts`。`npm run dev` が動いているか |
+| サーバーに接続できません。backend が起動しているか確かめてください | **backend が止まっている**（Vite の proxy が本文の無い 502 を返した）。backend の起動に失敗していることも多い。または通信そのものが失敗した | ターミナルの `[backend]` の行（起動のエラーが出ていないか）。`[frontend]` に `http proxy error ... ECONNREFUSED 127.0.0.1:3000` が出ていれば、backend につながっていない。判定は `frontend/src/api-client.ts` |
+| エラーが起きました（HTTP 数字） | 本文が ApiError でない、想定外の応答 | 開発者ツールの「ネットワーク」でその `/api/...` の応答を見る |
 | サーバーでエラーが起きました | backend の想定外の例外（500） | **ターミナルの `[backend]` に例外の中身が出る**（`backend/src/app.ts` の `onError`） |
 | リクエストを読み取れません | 本文が JSON として読めない（400）。画面から使う限りは起きないはず | `curl` などで手で API を呼んだなら、本文と `Content-Type: application/json` を確かめる |
 | 入力に誤りがあります（＋欄の下に赤い文） | API の受け口のバリデーションで弾かれた（400）。欄ごとの理由は `fieldErrors` | 欄の文の元: `backend/src/validation/fields.ts`（文字の長さ・運賃・URL）、一括設定は `backend/src/daily-records/` の検証 |
@@ -52,7 +52,7 @@ backend は、失敗を必ず `{ "error": "...", "fieldErrors": [...] }`（`ApiE
 | 400 | 入力の誤り。`fieldErrors` に欄ごとの理由 | `backend/src/validation/`・各 `*-router.ts` |
 | 404 | ルート・記録・追加の移動が無い。経路検索では「経路が見つからない」 | 各 `*-router.ts` |
 | 500 | 想定外の例外。本文は「サーバーでエラーが起きました」だけで、中身はターミナルに出る | `backend/src/app.ts` の `onError` |
-| 502 | 経路検索で、駅すぱあと API が失敗した（本文に理由）。**本文が JSON でない 502 は Vite の proxy**（backend が止まっている） | `backend/src/route-search/` |
+| 502 | 経路検索で、駅すぱあと API が失敗した（本文に理由）。**本文が JSON でない 502・503・504 は Vite の proxy**（backend が止まっている。画面には「サーバーに接続できません」と出る） | `backend/src/route-search/` |
 | 503 | 経路検索のキーが無い | `backend/.env` の `EKISPERT_API_KEY` |
 
 ## 経路検索（駅すぱあと API）
@@ -114,5 +114,5 @@ cd backend && node -e 'const {DatabaseSync}=require("node:sqlite");const db=new 
 
 実際に困ったことを、日付と一緒に足す（「症状・原因・どうやって分かったか・対処」）。
 
-- 2026-11-04: backend だけを止めて画面を開くと「エラーが起きました（HTTP 502）」と出て、原因が分かりにくい（この文書を書くときに動かして見つけた。[#89](https://github.com/Mika777v/routepense/issues/89)）
-- 2026-11-04: backend を2つ起動すると、2つ目もポート 3000 で起動したと出る（同上。Express 5 の `listen` の callback がエラーでも呼ばれるため。[#90](https://github.com/Mika777v/routepense/issues/90)）
+- 2026-11-04: backend だけを止めて画面を開くと「エラーが起きました（HTTP 502）」と出て、原因が分かりにくい（この文書を書くときに動かして見つけた。[#89](https://github.com/Mika777v/routepense/issues/89) で「サーバーに接続できません」が出るように直した）
+- 2026-11-04: backend を2つ起動すると、2つ目もポート 3000 で起動したと出る（同上。Express 5 の `listen` の callback がエラーでも呼ばれるため。[#90](https://github.com/Mika777v/routepense/issues/90) で、ポートが使用中である旨を出して終わるように直した）

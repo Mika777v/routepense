@@ -48,8 +48,9 @@ describe("routes-api", () => {
   });
 
   it("本文が JSON でないエラーでも、既定の文を返す", async () => {
-    stubFetch(new Response("<html>", { status: 502 }));
-    expect(await listRoutes()).toEqual({ ok: false, error: { error: "エラーが起きました（HTTP 502）" } });
+    // 502・503・504 は「接続できない」の文になる（api-client.test.ts）。ここでは、それ以外の 500 で確かめる
+    stubFetch(new Response("<html>", { status: 500 }));
+    expect(await listRoutes()).toEqual({ ok: false, error: { error: "エラーが起きました（HTTP 500）" } });
   });
 
   it("通信そのものが失敗したら、接続できない旨を返す", async () => {
