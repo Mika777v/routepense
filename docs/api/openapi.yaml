@@ -1,0 +1,575 @@
+# routepense の API の仕様書（OpenAPI 3.1）
+#
+# 正は shared/ の型と backend のコード。このファイルは、それを人が読めるように書き写したもの（ADR-0003）。
+# 食い違ったら、このファイルの方を直す。
+# 「メソッド＋パス」の一覧は backend/src/openapi.test.ts が backend と照らし合わせる（本文の形は照合しない）。
+openapi: 3.1.0
+info:
+  title: routepense API
+  version: 0.1.0
+  description: |
+    出勤ルートと日ごとの勤務区分を登録し、月の交通費を出す経費精算アプリの API。
+
+    - 日付は文字列（`YYYY-MM-DD`）、月は `YYYY-MM` で扱う（タイムゾーンのずれを避ける）
+    - 認証は無い。自分の PC の localhost でだけ使う（要件定義 §2）
+    - エラーの本文は、どの API も `ApiError`。入力の誤り（400）のときは `fieldErrors` に項目ごとの理由が入る
+servers:
+  - url: http://localhost:5173
+    description: 開発中（npm run dev）。Vite の proxy を通して backend に届く
+  - url: http://localhost:3000
+    description: backend に直接
+# 認証は無い（スコープ外）。空の一覧で「どの API も認証なしで呼べる」ことをはっきり書く
+security: []
+tags:
+  - name: health
+    description: 動いているかの確認
+  - name: routes
+    description: "出勤ルート（例: 自宅↔本社）"
+  - name: daily-records
+    description: 日次記録（1日1件の勤務区分）と一括設定
+  - name: extra-trips
+    description: 日次記録に足す、臨時の移動
+  - name: route-search
+    description: 経路検索（駅すぱあと。キーが無ければ使えない）
+
+paths:
+  /api/health:
+    get:
+      tags: [health]
+      summary: 動いているかを返す
+      operationId: getHealth
+      responses:
+        "200":
+          description: 動いている
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+  /api/routes:
+    get:
+      tags: [routes]
+      summary: ルートの一覧
+      operationId: listRoutes
+      responses:
+        "200":
+          description: 登録済みのルート
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Route" }
+    post:
+      tags: [routes]
+      summary: ルートを登録する
+      operationId: createRoute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RouteInput" }
+      responses:
+        "201":
+          description: 登録したルート（id はサーバーが決める）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Route" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /api/routes/{id}:
+    parameters:
+      - $ref: "#/components/parameters/RouteId"
+    put:
+      tags: [routes]
+      summary: ルートを編集する
+      description: 過去の日次記録には、記録を作った時点のルートの値（RouteSnapshot）が残るので、金額は変わらない
+      operationId: updateRoute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RouteInput" }
+      responses:
+        "200":
+          description: 編集した後のルート
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Route" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [routes]
+      summary: ルートを削除する
+      description: そのルートを使った日次記録は消えない
+      operationId: deleteRoute
+      responses:
+        "204": { description: 削除した }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/daily-records:
+    get:
+      tags: [daily-records]
+      summary: 月の日次記録の一覧
+      operationId: listDailyRecords
+      parameters:
+        - name: month
+          in: query
+          required: true
+          description: 月（YYYY-MM）
+          schema: { $ref: "#/components/schemas/MonthString" }
+      responses:
+        "200":
+          description: その月の記録（記録の無い日は「未入力」なので含まない）
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DailyRecord" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /api/daily-records/bulk/preview:
+    post:
+      tags: [daily-records]
+      summary: 一括設定の下見（保存しない）
+      description: 期間と曜日の条件に当てはめた結果と、上書きの確認に出す情報を返す
+      operationId: previewBulk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BulkPreviewRequest" }
+      responses:
+        "200":
+          description: 当てはめた結果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BulkApplyResult" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /api/daily-records/bulk:
+    post:
+      tags: [daily-records]
+      summary: 一括設定の登録
+      description: カレンダーで直した後の、日ごとの勤務区分をまとめて保存する。すでに記録がある日は、勤務区分だけを置き換える
+      operationId: saveBulk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BulkSaveRequest" }
+      responses:
+        "200":
+          description: 保存した記録
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DailyRecord" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /api/daily-records/{date}:
+    parameters:
+      - $ref: "#/components/parameters/Date"
+    put:
+      tags: [daily-records]
+      summary: その日の勤務区分を保存する
+      description: 記録が無ければ作り、あれば勤務区分だけを置き換える（追加の移動は残る）
+      operationId: saveDailyRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DailyRecordInput" }
+      responses:
+        "200":
+          description: 保存した記録
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DailyRecord" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+    delete:
+      tags: [daily-records]
+      summary: その日の記録を消して「未入力」に戻す
+      operationId: deleteDailyRecord
+      responses:
+        "204": { description: 削除した }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/daily-records/{date}/extra-trips:
+    parameters:
+      - $ref: "#/components/parameters/Date"
+    post:
+      tags: [extra-trips]
+      summary: 追加の移動を足す
+      description: その日の記録が先に必要（無ければ 404）
+      operationId: addExtraTrip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExtraTripInput" }
+      responses:
+        "201":
+          description: 足した追加の移動（id はサーバーが決める）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExtraTrip" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/daily-records/{date}/extra-trips/{tripId}:
+    parameters:
+      - $ref: "#/components/parameters/Date"
+      - name: tripId
+        in: path
+        required: true
+        description: 追加の移動の id
+        schema: { type: string }
+    put:
+      tags: [extra-trips]
+      summary: 追加の移動を直す
+      operationId: updateExtraTrip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExtraTripInput" }
+      responses:
+        "200":
+          description: 直した後の追加の移動
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExtraTrip" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [extra-trips]
+      summary: 追加の移動を消す
+      operationId: deleteExtraTrip
+      responses:
+        "204": { description: 削除した }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/route-search/status:
+    get:
+      tags: [route-search]
+      summary: 経路検索が使えるか
+      description: 画面は、使えるときだけ「経路を調べる」の欄を出す
+      operationId: getRouteSearchStatus
+      responses:
+        "200":
+          description: 使えるか
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RouteSearchStatus" }
+
+  /api/route-search:
+    get:
+      tags: [route-search]
+      summary: 2駅の間の経路を調べる
+      description: 経路結果のページの URL を返す。駅すぱあとのフリープランでは運賃の数値は返らない（ADR-0002）
+      operationId: searchRoute
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: 出発駅（前後の空白は除く）
+          schema: { type: string, minLength: 1, maxLength: 100, example: 渋谷 }
+        - name: to
+          in: query
+          required: true
+          description: 到着駅（出発駅と別の駅）
+          schema: { type: string, minLength: 1, maxLength: 100, example: 東京 }
+      responses:
+        "200":
+          description: 見つかった
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RouteSearchResponse" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "502":
+          description: 経路検索の API の呼び出しに失敗した
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+        "503":
+          description: 経路検索が使えない（API のキーが設定されていない）
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiError" }
+
+components:
+  parameters:
+    RouteId:
+      name: id
+      in: path
+      required: true
+      description: ルートの id
+      schema: { type: string }
+    Date:
+      name: date
+      in: path
+      required: true
+      description: 日付（YYYY-MM-DD の実在する日）
+      schema: { $ref: "#/components/schemas/DateString" }
+
+  responses:
+    BadRequest:
+      description: 入力に誤りがある（`fieldErrors` に項目ごとの理由）。JSON として読めない本文もこれになる
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+          example:
+            error: 入力に誤りがあります
+            fieldErrors:
+              - { field: oneWayFare, message: 片道運賃は0以上の整数（円）で入力してください }
+    NotFound:
+      description: 対象が見つからない
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+
+  schemas:
+    # shared/src/date.ts
+    DateString:
+      type: string
+      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+      description: 日付（YYYY-MM-DD）
+      example: "2026-11-04"
+    MonthString:
+      type: string
+      pattern: "^\\d{4}-\\d{2}$"
+      description: 月（YYYY-MM）
+      example: "2026-11"
+    Weekday:
+      type: integer
+      enum: [0, 1, 2, 3, 4, 5, 6]
+      description: 曜日（0 が日曜、6 が土曜。Date#getDay と同じ）
+
+    # shared/src/api.ts
+    FieldError:
+      type: object
+      required: [field, message]
+      properties:
+        field: { type: string, description: "入力のどこか（例 `days[0].workStyle.routeId`）" }
+        message: { type: string, description: なぜだめだったか }
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        fieldErrors:
+          type: array
+          description: バリデーションのエラーのときだけ入る
+          items: { $ref: "#/components/schemas/FieldError" }
+
+    # shared/src/index.ts
+    HealthResponse:
+      type: object
+      required: [status, time]
+      properties:
+        status: { const: ok }
+        time: { type: string, format: date-time }
+
+    # shared/src/route.ts
+    Transport:
+      type: string
+      enum: [train, bus, other]
+      description: 交通手段（電車 / バス / その他）
+    RouteInput:
+      type: object
+      description: ルートを登録・編集するときに送る値（id と userId はサーバーが決める）
+      required: [name, from, to, transport, oneWayFare]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100, example: 自宅↔本社 }
+        from: { type: string, minLength: 1, maxLength: 100, description: 出発地, example: 渋谷 }
+        to: { type: string, minLength: 1, maxLength: 100, description: 到着地, example: 東京 }
+        transport: { $ref: "#/components/schemas/Transport" }
+        oneWayFare: { type: integer, minimum: 0, maximum: 100000, description: 片道運賃（円）, example: 200 }
+        searchUrl:
+          type: string
+          format: uri
+          maxLength: 2000
+          description: 経路結果のページの URL（任意。http:// か https://）。金額の計算には使わない
+    Route:
+      allOf:
+        - type: object
+          required: [id, userId]
+          properties:
+            id: { type: string }
+            userId: { type: string, description: 持ち主。今は固定値 }
+        - $ref: "#/components/schemas/RouteInput"
+    RouteSnapshot:
+      type: object
+      description: 記録を作った時点のルートの値のコピー。ルートを後から編集・削除しても、過去の記録は変わらない
+      required: [name, from, to, transport, oneWayFare]
+      properties:
+        name: { type: string }
+        from: { type: string }
+        to: { type: string }
+        transport: { $ref: "#/components/schemas/Transport" }
+        oneWayFare: { type: integer }
+
+    # shared/src/work-style.ts（判別可能なユニオン型 → oneOf と discriminator）
+    WorkStyle:
+      description: 勤務区分。kind の値で形を見分ける。「未入力」は記録が無い日として表す
+      oneOf:
+        - $ref: "#/components/schemas/RemoteWorkStyle"
+        - $ref: "#/components/schemas/CommuteWorkStyle"
+        - $ref: "#/components/schemas/HolidayWorkStyle"
+      discriminator:
+        propertyName: kind
+        mapping:
+          remote: "#/components/schemas/RemoteWorkStyle"
+          commute: "#/components/schemas/CommuteWorkStyle"
+          holiday: "#/components/schemas/HolidayWorkStyle"
+    RemoteWorkStyle:
+      type: object
+      required: [kind]
+      properties:
+        kind: { const: remote }
+    CommuteWorkStyle:
+      type: object
+      required: [kind, routeId, route]
+      properties:
+        kind: { const: commute }
+        routeId: { type: string }
+        route: { $ref: "#/components/schemas/RouteSnapshot" }
+    HolidayWorkStyle:
+      type: object
+      required: [kind]
+      properties:
+        kind: { const: holiday }
+    WorkStyleInput:
+      description: 画面から送る勤務区分。出勤は routeId だけを送り、ルートの値はサーバーが登録済みのルートからコピーする
+      oneOf:
+        - $ref: "#/components/schemas/RemoteWorkStyle"
+        - $ref: "#/components/schemas/CommuteWorkStyleInput"
+        - $ref: "#/components/schemas/HolidayWorkStyle"
+      discriminator:
+        propertyName: kind
+        mapping:
+          remote: "#/components/schemas/RemoteWorkStyle"
+          commute: "#/components/schemas/CommuteWorkStyleInput"
+          holiday: "#/components/schemas/HolidayWorkStyle"
+    CommuteWorkStyleInput:
+      type: object
+      required: [kind, routeId]
+      properties:
+        kind: { const: commute }
+        routeId: { type: string, description: 登録済みのルートの id（無ければ 400） }
+
+    # shared/src/extra-trip.ts
+    ExtraTripInput:
+      type: object
+      description: 追加の移動を足す・直すときに送る値（id はサーバーが決める）
+      required: [from, to, transport, oneWayFare, tripType]
+      properties:
+        from: { type: string, minLength: 1, maxLength: 100 }
+        to: { type: string, minLength: 1, maxLength: 100 }
+        transport: { $ref: "#/components/schemas/Transport" }
+        oneWayFare: { type: integer, minimum: 0, maximum: 100000, description: 片道運賃（円） }
+        tripType: { type: string, enum: [oneWay, roundTrip], description: 片道 / 往復 }
+        purpose: { type: string, maxLength: 100, description: 目的・メモ（任意） }
+        sourceRouteId: { type: string, description: 登録済みのルートから選んだ場合の元ルート（任意） }
+    ExtraTrip:
+      allOf:
+        - type: object
+          required: [id]
+          properties:
+            id: { type: string }
+        - $ref: "#/components/schemas/ExtraTripInput"
+
+    # shared/src/daily-record.ts
+    DailyRecord:
+      type: object
+      description: 1日分の記録。ユーザーごとに1日1件
+      required: [id, userId, date, workStyle, extraTrips]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        date: { $ref: "#/components/schemas/DateString" }
+        workStyle: { $ref: "#/components/schemas/WorkStyle" }
+        extraTrips:
+          type: array
+          description: 追加の移動（足した順）
+          items: { $ref: "#/components/schemas/ExtraTrip" }
+    DailyRecordInput:
+      type: object
+      required: [workStyle]
+      properties:
+        workStyle: { $ref: "#/components/schemas/WorkStyleInput" }
+
+    # shared/src/bulk.ts・bulk-apply.ts
+    BulkPreviewRequest:
+      type: object
+      required: [startDate, endDate, weekdays, skipHolidays, workStyle]
+      properties:
+        startDate: { $ref: "#/components/schemas/DateString" }
+        endDate:
+          allOf: [{ $ref: "#/components/schemas/DateString" }]
+          description: 開始日以降で、開始日と同じ月
+        weekdays:
+          type: array
+          minItems: 1
+          description: 対象の曜日（1つ以上）
+          items: { $ref: "#/components/schemas/Weekday" }
+          example: [1, 2, 3, 4, 5]
+        skipHolidays: { type: boolean, description: 祝日を除くか（省略はできない） }
+        workStyle: { $ref: "#/components/schemas/WorkStyleInput" }
+    BulkSaveRequest:
+      type: object
+      required: [days]
+      properties:
+        days:
+          type: array
+          minItems: 1
+          maxItems: 31
+          description: 同じ月の中で、同じ日は2回出てこない
+          items:
+            type: object
+            required: [date, workStyle]
+            properties:
+              date: { $ref: "#/components/schemas/DateString" }
+              workStyle: { $ref: "#/components/schemas/WorkStyleInput" }
+    DailyRecordDraft:
+      type: object
+      description: 保存する前の記録（DailyRecord の date・workStyle・extraTrips）
+      required: [date, workStyle, extraTrips]
+      properties:
+        date: { $ref: "#/components/schemas/DateString" }
+        workStyle: { $ref: "#/components/schemas/WorkStyle" }
+        extraTrips:
+          type: array
+          items: { $ref: "#/components/schemas/ExtraTrip" }
+    BulkApplyResult:
+      type: object
+      required: [records, overwrittenDates, datesWithExtraTrips]
+      properties:
+        records:
+          type: array
+          description: 対象の日の、保存する記録（日付の古い順）
+          items: { $ref: "#/components/schemas/DailyRecordDraft" }
+        overwrittenDates:
+          type: array
+          description: すでに記録があり、勤務区分を上書きする日
+          items: { $ref: "#/components/schemas/DateString" }
+        datesWithExtraTrips:
+          type: array
+          description: 上書きする日のうち、追加の移動がある日
+          items: { $ref: "#/components/schemas/DateString" }
+
+    # shared/src/route-search.ts
+    RouteSearchStatus:
+      type: object
+      required: [available]
+      properties:
+        available: { type: boolean }
+    RouteSearchResponse:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri, description: 経路結果のページの URL }
+        fare: { type: integer, description: 片道運賃（円）。分かる実装のときだけ入る }
