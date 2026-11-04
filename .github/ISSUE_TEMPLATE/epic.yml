@@ -1,5 +1,5 @@
 name: Epic
-description: 複数の Task をまとめる大きな単位（CLAUDE.md「進め方」の1ステップなど）。子は sub-issue で結び付ける
+description: 複数の Task をまとめる大きな単位（docs/DEV_RULES.md「進め方」の1ステップなど）。子は sub-issue で結び付ける
 title: "[Epic] "
 labels: ["type:epic"]
 body:
