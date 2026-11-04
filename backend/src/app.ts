@@ -1,5 +1,5 @@
 import type { ApiError, HealthResponse } from "@routepense/shared";
-import express, { type ErrorRequestHandler } from "express";
+import express, { Router, type ErrorRequestHandler } from "express";
 import { dailyRecordRouter } from "./daily-records/daily-record-router";
 import type { DailyRecordRepository } from "./daily-records/daily-record-repository";
 import type { RouteSearch } from "./route-search/route-search";
@@ -16,6 +16,30 @@ export type AppDeps = {
   userId: string;
 };
 
+function healthRouter(): Router {
+  const router = Router();
+  router.get("/", (_req, res) => {
+    const body: HealthResponse = { status: "ok", time: new Date().toISOString() };
+    res.json(body);
+  });
+  return router;
+}
+
+/**
+ * API の Router と、それを付けるパスの一覧。
+ * API は必ずここに足す（app.get などで直接足さない）。
+ * openapi.test.ts がこの一覧から「メソッド＋パス」を集め、docs/api/openapi.yaml と照らし合わせる。
+ * Express 5 は app.use で付けたパスを後から取り出せないので、付けるパスをデータとして持っておく。
+ */
+export function apiRouters(deps: AppDeps): { path: string; router: Router }[] {
+  return [
+    { path: "/api/health", router: healthRouter() },
+    { path: "/api/routes", router: routeRouter(deps.routes, deps.userId) },
+    { path: "/api/daily-records", router: dailyRecordRouter(deps.dailyRecords, deps.routes, deps.userId) },
+    { path: "/api/route-search", router: routeSearchRouter(deps.routeSearch) },
+  ];
+}
+
 // アプリの組み立て（ルーティングなど）と、ポートで待ち受ける処理を分けておく。
 // こうするとテストからアプリだけを作って、好きなポートで動かせる。
 // DB は引数で受け取るので、テストでは使い捨ての DB を渡せる。
@@ -23,14 +47,9 @@ export function createApp(deps: AppDeps) {
   const app = express();
   app.use(express.json());
 
-  app.get("/api/health", (_req, res) => {
-    const body: HealthResponse = { status: "ok", time: new Date().toISOString() };
-    res.json(body);
-  });
-
-  app.use("/api/routes", routeRouter(deps.routes, deps.userId));
-  app.use("/api/daily-records", dailyRecordRouter(deps.dailyRecords, deps.routes, deps.userId));
-  app.use("/api/route-search", routeSearchRouter(deps.routeSearch));
+  for (const { path, router } of apiRouters(deps)) {
+    app.use(path, router);
+  }
 
   // JSON として読めない本文などは、ここで 400 にする。それ以外の想定外のエラーは 500
   const onError: ErrorRequestHandler = (err, _req, res, _next) => {
