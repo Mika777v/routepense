@@ -41,3 +41,9 @@
 | セッションを始める・終える・区切りの報告 | `docs/DEV_RULES.md`「セッションとコンテキストの使い方」→ `docs/PROGRESS.md` |
 | 教科書を書く | `docs/DEV_RULES.md`「学習ドキュメント（教科書）」 |
 | 何を作るか | `docs/requirements.md`（MVP の一覧と進め方は `docs/DEV_RULES.md`） |
+
+## このブランチ（`learning/ts-quiz`）専用
+
+- **PR は出さない。main にマージしない。** TypeScript の理解度チェック（確認テスト）の記録用ブランチ（オーナーの指示）
+- セッションを始めたら、先に `docs/learning/ts-quiz.md` を読み、「再開のしかた」に従って続きから進める。進んだら同じファイルを更新して commit・push する
+- 上の「必ず守ること」の1ブランチ1PR・PR 前の確認・`docs/PROGRESS.md` の更新は、このブランチでは適用しない
