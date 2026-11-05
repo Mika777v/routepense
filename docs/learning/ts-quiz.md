@@ -121,10 +121,11 @@
 |---|---|---|---|---|
 | Q21 | `undefined` の癖 | `Record<string, number>` の添字と `string[]` の範囲外の添字（`noUncheckedIndexedAccess` オン） | ○ | a は `number \| undefined` と即答。b は最初 `undefined` だけ→ヒント（長さはコンパイル時に分からない）で `string \| undefined`。「チェックしてから使う」も言えた。`Record` の添字では癖は出なかった |
 | Q22 | `key` の挙動 | `key={i}` の一覧で先頭を削除したとき、`defaultValue` の入力欄に何が残るか | ○ | 最初は「卵が残ってパンが消える」と答えた（字面は合うが、牛乳が残る点に触れず）。問い返しで「牛乳、卵」と自力で言えた。Q18 より進んだが、理由（再利用される DOM と `defaultValue` は最初だけ）の説明は私が補った |
+| Q23 | `undefined` の癖 | `fares.get(a) + fares.get(b)` が型チェックを通るか／実行時の結果 | ○ | (a) 「通らない」は正解。ただ `undefined` の場所を引数と取り違えた（正しくは `get` の戻り値）。(b) `520` と `NaN` を自力で。エラーにならず `NaN` が流れる怖さは私が補った |
 
 ### △の再テストのまとめ
 
-- `undefined` の癖（Q7・Q14）は、Q21 の `Record`・配列の添字では出なかった。ただし `string[]` の範囲外は最初「`undefined` だけ」と答えた。`Map.get` の別形での再確認はまだ
+- `undefined` の癖（Q7・Q14）は、Q21 の `Record`・配列の添字では出なかった。ただし `string[]` の範囲外は最初「`undefined` だけ」と答えた。`Map.get` の別形（Q23）では「通らない」と実行時の `NaN` は言えたが、`undefined` がどこにあるか（`get` の戻り値）を引数と取り違えた。「戻り値が `undefined` かもしれない」を自分から指す練習が、もう一度あるとよい
 - `key` の挙動は Q18 → Q22 で改善（○）。まだ問い返しが必要
 
 ## このあとの案（更新）
