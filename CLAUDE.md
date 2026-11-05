@@ -28,6 +28,7 @@
 - **force push しない。** マージ済みの PR の続きは新しいブランチで。main の取り込みは merge
 - PR のタイトルは Conventional Commits（`pr-title.yml` の type・scope だけ）。本文は `.github/pull_request_template.md` に沿う
 - PR の前に `npm run typecheck && npm run lint && npm run test` を通す
+- **後から変えにくいことを決めたら ADR（`docs/adr/`）を書く。** DB の作り直し・データの移し方・方式や外部サービスの選択など。迷わずに決めたことでも書き、PR の本文の「自分で決めたこと」だけで済ませない
 - 画面のメッセージ・API のステータス・起動のログを変えたら、`docs/troubleshooting.md` も同じ PR で直す
 - 作業の単位は Issue（Epic・Task）。PR の本文に `Closes #Task`
 - 区切りで止まって報告し、セッションを終える前に `docs/PROGRESS.md` を更新する
@@ -38,4 +39,5 @@
 | ブランチ・PR・自動マージ | `docs/DEV_RULES.md`「git の運用」・`docs/GITHUB_WORKFLOW.md` |
 | Issue を作る・閉じる・次の作業を選ぶ | `docs/DEV_RULES.md`「Issue の使い方」 |
 | セッションを始める・終える・区切りの報告 | `docs/DEV_RULES.md`「セッションとコンテキストの使い方」→ `docs/PROGRESS.md` |
+| 後から変えにくいことを決める | `docs/adr/README.md`（書き方と今までの ADR） |
 | 何を作るか | `docs/requirements.md`（MVP の一覧と進め方は `docs/DEV_RULES.md`） |
