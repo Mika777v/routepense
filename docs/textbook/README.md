@@ -23,6 +23,7 @@
 | 16 | [16-promise-and-async-await.md](16-promise-and-async-await.md) | 待つ処理の型（Promise と async / await） | MVP の後 経路検索の画面 |
 | 17 | [17-generics.md](17-generics.md) | ジェネリクス（型を引数にとる型と関数） | 第4・5・7・16章のまとめ（`Result<T>`・`request<T>`・`K extends keyof`） |
 | 18 | [18-tuple-types.md](18-tuple-types.md) | タプル型（長さと並びの決まった配列） | CSV 出力（`CsvRow`） |
+| 19 | [19-values-that-may-be-missing.md](19-values-that-may-be-missing.md) | 「見つからないかもしれない」値の受け取り方（`Map.get`・`find`・添字、`undefined` か `throw` か） | 第1・11・14章のまとめ |
 
 これから書く予定の章（`terms-memo.md` を材料にします）:
 
