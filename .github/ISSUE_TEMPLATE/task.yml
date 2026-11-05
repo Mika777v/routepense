@@ -24,7 +24,7 @@ body:
         - [ ] 受け入れ条件を満たす
         - [ ] テストを追加・更新した
         - [ ] CI がグリーン
-        - [ ] 教科書・docs を更新した（必要なら）
+        - [ ] docs を更新した（必要なら）
     validations:
       required: true
   - type: textarea
