@@ -148,6 +148,16 @@
 - 未確認: 関数のオーバーロード、テンプレートリテラル型、`infer`
 - 次の候補: 上の未確認、または type-challenges の Easy
 
+### type-challenges の Easy 相当（3問）
+
+| 問 | 内容 | 判定 | メモ |
+|---|---|---|---|
+| 1 | `MyPick<T, K extends keyof T>` | ◎に近い○ | `{ [P in K]: T[P] }` を自力で |
+| 2 | `TupleToObject<T>` | ○ | `{ [K in T[number]]: K }` を自力で（`T[number]` はヒント） |
+| 3 | `First<T extends any[]>` | ○ | `T extends [] ? never : T[0]` を自力で（条件型） |
+
+- 型を組み立てる側も、ヒントがあれば自力で書ける。`infer` は未履修（`First` は `T extends [infer F, ...any[]] ? F : never` とも書ける）
+
 ## 教科書の直し候補（`main` 側の別ブランチで。このブランチではやらない）
 
 テストで言えなかった・取り違えた点を、章に足す候補:
